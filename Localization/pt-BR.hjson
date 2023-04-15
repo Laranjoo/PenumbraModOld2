@@ -1,0 +1,51 @@
+# The possible languages are: English ("en-US"), German ("de-DE"), Italian ("it-IT"), French ("fr-FR"), Spanish ("es-ES"), Russian ("ru-RU"), Chinese ("zh-Hans"), Portuguese ("pt-BR"), and Polish ("pl-PL")
+Mods: {
+	PenumbraMod: {
+
+		DamageClassName: {
+			ReaperClass : danos por ataque ceifador
+		}
+		
+		NPCName: {
+			vhcmnpc: Vhcm
+		}
+		
+		Bestiary: {
+			vhcmnpc: Ele veio de uma cidade misteriosa... não sabemos porque ele gosta de viver em lugares escuros, ele gosta de vibrações escuras e chuva, que estranho...
+		}
+		
+		
+		#This is what displays during all of an NPC's happiness levels. Note that the localization key for these should always be "TownNPCMood.*NPCName*.*Mood*" or else it won't display properly.
+		TownNPCMood: {
+			vhcmnpc: {
+				Content: Me sinto bem na vibe agora, o Cemitério é demais pra me deixar pensar em estar em casa...
+				NoHome: Eu morava em um lugar escuro, mas eu tinha uma casa, sabe?
+				LoveSpace: Estar em um lugar grande é legal sair pensando em algo...
+				FarFromHome: Ah, estou longe de casa, você poderia me ajudar a chegar nela? ou eu preciso esperar até a noite chegar?
+				DislikeCrowded: Esse monte de gente me deixa desconfortável...
+				HateCrowded: Serio que esse TANTO de gente curte ficar nesse lugar? eu qeuria tar sozinho com alguem em especifico...
+				LikeBiome: "Eu gosto do Cemitério, me trás umas vibes maneiras, deixe as lápides por aqui"
+				LoveBiome: "Eu amo o Cemitério, adoro a vibe que ele me trás, porfavor não destrua as lápides"
+				DislikeBiome: "I dont like being in cold places, this makes me so unconfortable..."
+				HateBiome: "Meu deus! isso era pra ser um sonho de criança? Vou ir embora!!!"
+				LikeNPC: "Eu gosto do {NPCName} por causa das infomaç~es que ele trás, e tambem pelo chapéu dele, é engraçado..."
+				LoveNPC: "Eu meio que gosto de como {NPCName} se veste, é muito estiloso..."
+				DislikeNPC: "Porque que {NPCName} está tão feliz toda hora? eu não entendo isso..."
+				HateNPC: "Please make {NPCName} longe de mim, ele não para de ficar me fazendo promoções de um pozinho amarelo estúpido"
+			}
+		}
+                Dialogue: {
+			vhcmnpc: {
+				Rainoutside : "Tá chovendo... sinto umas vibes estranhas quando estou molhado, não curto isso..."
+                                Standart : "Você está me perturbando?"
+                                Standart2 : "Estou sendindo que você gosta de falar comigo, quer uma lápide? vendo um monte de graça!"
+                                Rainoutsidehome : "I like the sound of the rain, i feel a cool vibe of it..."
+                                TalkALot : "Estou me perguntando se você precisa de alguma coisa, se não, vai embora, to tentando me concertar emocionalmente, cê sabe?"
+			}
+		}
+
+		GameTips: {
+			Tip: "Há muito tempo, uma guerra consagrada aconteceu no mundo, gerando a infecção da penumbra..."
+		}
+	}
+}

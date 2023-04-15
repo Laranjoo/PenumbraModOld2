@@ -1,0 +1,51 @@
+# The possible languages are: English ("en-US"), German ("de-DE"), Italian ("it-IT"), French ("fr-FR"), Spanish ("es-ES"), Russian ("ru-RU"), Chinese ("zh-Hans"), Portuguese ("pt-BR"), and Polish ("pl-PL")
+Mods: {
+	PenumbraMod: {
+
+		DamageClassName: {
+			ReaperClass : reaper damage
+		}
+		
+		NPCName: {
+			vhcmnpc: Vhcm
+		}
+		
+		Bestiary: {
+			vhcmnpc: He came from a misterious city... we dont know why he likes living in dark places, he likes dark vibes and rain, such strange...
+		}
+		
+		
+		#This is what displays during all of an NPC's happiness levels. Note that the localization key for these should always be "TownNPCMood.*NPCName*.*Mood*" or else it won't display properly.
+		TownNPCMood: {
+			vhcmnpc: {
+				Content: "I feel pretty on the vibe right now, the Graveyard is awesome to let me think about being in home..."
+				NoHome: "I've been living on a dark place, but i had a home y'know?."
+				LoveSpace: "Being in a large place its cool to walk away thinking about something..."
+				FarFromHome: "Ah, i am far from my home, could you help me to get into it? or i need to wait till the night comes out?"
+				DislikeCrowded: "This many people make my unconfortable...."
+				HateCrowded: "Does this MANY people like being there? seriously, i prefer being with someone alone..."
+				LikeBiome: "I like the Graveyard, it gives me dark vibes, i guess you should keep the tombstones..."
+				LoveBiome: "I love the Graveyard, i love the vibe it gives to me, dont destroy the tombstones please"
+				DislikeBiome: "I dont like being in cold places, this makes me so unconfortable..."
+				HateBiome: "Dang! where the hell i am? is this supposed to be the dream of some kid? ima head out!!!"
+				LikeNPC: "I like {NPCName} because of the informations he has, and for his green hat, its so funny seeing him with it..."
+				LoveNPC: "I quite like how {NPCName} wears, such style..."
+				DislikeNPC: "Why is {NPCName} so happy everytime? i don't understand it..."
+				HateNPC: "Please make {NPCName} away from me, he doesn't stops making me promotions of a stupid yellow dust"
+			}
+		}
+                Dialogue: {
+			vhcmnpc: {
+				Rainoutside : "Its raining... i feel some strange vibes of getting wet, i quite dont like it."
+                                Standart : "Are you disturbing me?"
+                                Standart2 : "Im feeling you like talking to me, wanna a tombstone?, i give lots for free!"
+                                Rainoutsidehome : "I like the sound of the rain, i feel a cool vibe of it..."
+                                TalkALot : "Im asking for myself if you need something, if not, please go away, im trying to make my feelings all fine, y'know?"
+			}
+		}
+
+		GameTips: {
+			Tip: "A long time ago, a holy war happened on the world, generating the penumbra infection..."
+		}
+	}
+}
