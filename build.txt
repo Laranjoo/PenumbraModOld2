@@ -1,3 +1,0 @@
-displayName = Penumbra Mod
-author = Laranjoo
-version = 0.1
