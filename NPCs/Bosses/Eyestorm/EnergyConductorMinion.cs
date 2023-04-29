@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PenumbraMod.Common;
 using PenumbraMod.Content.Buffs;
+using ReLogic.Utilities;
 using System.Collections.Generic;
 using System.Security.Policy;
 using Terraria;
@@ -41,10 +43,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
 
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Energy Conductor Protector");
+            // DisplayName.SetDefault("Energy Conductor Protector");
             Main.npcFrameCount[Type] = 4;
-            NPCID.Sets.TrailCacheLength[NPC.type] = 5; //How many copies of shadow/trail
-            NPCID.Sets.TrailingMode[NPC.type] = 0;
+            NPCID.Sets.TrailCacheLength[NPC.type] = 12; //How many copies of shadow/trail
+            NPCID.Sets.TrailingMode[NPC.type] = 1;
             // By default enemies gain health and attack if hardmode is reached. this NPC should not be affected by that
             NPCID.Sets.DontDoHardmodeScaling[Type] = true;
             // Enemies can pick up coins, let's prevent it for this NPC
@@ -77,7 +79,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             NPC.defense = 10;
             NPC.lifeMax = 1000;
             NPC.HitSound = SoundID.NPCHit34;
-            NPC.DeathSound = new SoundStyle("PenumbraMod/Assets/Sounds/SFX/ShieldBroken")
+            NPC.DeathSound = new SoundStyle("PenumbraMod/Assets/Sounds/SFX/ShieldBreakOut")
             {
                 Volume = 3.1f,
                 PitchVariance = 0.3f,
@@ -131,7 +133,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 			return true;
 		}
 
-		public override void HitEffect(int hitDirection, double damage) {
+		public override void HitEffect(NPC.HitInfo hit) {
 			if (NPC.life <= 0) {
 				for (int i = 0; i < 40; i++) {
 					Vector2 velocity = NPC.velocity + new Vector2(Main.rand.NextFloat(-2f, 2f), Main.rand.NextFloat(-2f, 2f));
@@ -142,25 +144,29 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 		}
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color lightColor) //PreDraw for trails
         {
-            Main.instance.LoadProjectile(NPC.type);
-            Texture2D texture = TextureAssets.Npc[NPC.type].Value;
-
-            // Redraw the projectile with the color not influenced by light
-            Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, NPC.height * 0.5f);
-            for (int k = 0; k < NPC.oldPos.Length; k++)
+            if (!NPC.IsABestiaryIconDummy)
             {
-                if (NPC.oldPos[k] == Vector2.Zero)
+                spriteBatch.End();
+                spriteBatch.Begin(default, BlendState.Additive);
+
+                Main.instance.LoadProjectile(NPC.type);
+                Texture2D texture = TextureAssets.Npc[NPC.type].Value;
+
+                // Redraw the projectile with the color not influenced by light
+                Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, NPC.height * 0.5f);
+                for (int k = 0; k < NPC.oldPos.Length; k++)
                 {
-                    return false;
+                    Vector2 drawPos = (NPC.oldPos[k] - Main.screenPosition) + drawOrigin + new Vector2(0f, NPC.gfxOffY);
+                    Color color = NPC.GetAlpha(lightColor) * ((NPC.oldPos.Length - k) / (float)NPC.oldPos.Length);
+                    Main.EntitySpriteDraw(texture, drawPos, NPC.frame, color, NPC.oldRot[k], drawOrigin, NPC.scale, SpriteEffects.None, 0);
                 }
-                Vector2 drawPos = (NPC.oldPos[k] - Main.screenPosition) + drawOrigin + new Vector2(0f, NPC.gfxOffY);
-                Color color = NPC.GetAlpha(lightColor) * ((NPC.oldPos.Length - k) / (float)NPC.oldPos.Length);
-                Main.EntitySpriteDraw(texture, drawPos, NPC.frame, color, NPC.oldRot[k], drawOrigin, NPC.scale, SpriteEffects.None, 0);
+                spriteBatch.End();
+                spriteBatch.Begin();
             }
 
             return true;
         }
-		public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
+        public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
         {
             Texture2D glowMask = ModContent.Request<Texture2D>(NPC.ModNPC.Texture + "_Glow").Value;
             var effects = NPC.spriteDirection == -1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
@@ -201,13 +207,20 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 			return false;
 		}
         public bool DrawShield => Main.npc[(int)NPC.ai[0]].life >= 15;
+       
         private void MoveInFormation() {
 			NPC parentNPC = Main.npc[ParentIndex];
-
-			NPC.ai[3]++;
-			NPC.Center = parentNPC.Center + new Vector2(200, 0).RotatedBy(NPC.ai[3] / 14);
             var entitySource = NPC.GetSource_FromAI();
-            Vector2 velocity = new Vector2(0, 0);
+            NPC.ai[2]++;
+			NPC.ai[3]++;
+            if (NPC.ai[2] == 1)
+            {
+                Projectile.NewProjectile(entitySource, NPC.Center, Vector2.Zero, ModContent.ProjectileType<LoopSoundProj>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                if (Main.npc[PenumbraGlobalNPC.eyeStorm].ai[2] > 200)
+                    SoundEngine.PlaySound(new SoundStyle("PenumbraMod/Assets/Sounds/SFX/ShieldBreakIn"));
+            }
+			NPC.Center = parentNPC.Center + new Vector2(200, 0).RotatedBy(NPC.ai[3] / 16);
+           
             int type = ModContent.ProjectileType<EyeprojEmpty>();
             Projectile.NewProjectile(entitySource, NPC.Center, NPC.DirectionTo(parentNPC.Center) * 12f, type, 0, 0f, Main.myPlayer);
             int radius1 = 80;
@@ -272,10 +285,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Energy Conductor Shooter");
+            // DisplayName.SetDefault("Energy Conductor Shooter");
             Main.npcFrameCount[Type] = 4;
-            NPCID.Sets.TrailCacheLength[NPC.type] = 5; //How many copies of shadow/trail
-            NPCID.Sets.TrailingMode[NPC.type] = 0;
+            NPCID.Sets.TrailCacheLength[NPC.type] = 12; //How many copies of shadow/trail
+            NPCID.Sets.TrailingMode[NPC.type] = 1;
             // By default enemies gain health and attack if hardmode is reached. this NPC should not be affected by that
             NPCID.Sets.DontDoHardmodeScaling[Type] = true;
             // Enemies can pick up coins, let's prevent it for this NPC
@@ -340,20 +353,24 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color lightColor) //PreDraw for trails
         {
-            Main.instance.LoadProjectile(NPC.type);
-            Texture2D texture = TextureAssets.Npc[NPC.type].Value;
-
-            // Redraw the projectile with the color not influenced by light
-            Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, NPC.height * 0.5f);
-            for (int k = 0; k < NPC.oldPos.Length; k++)
+            if (!NPC.IsABestiaryIconDummy)
             {
-                if (NPC.oldPos[k] == Vector2.Zero)
+                spriteBatch.End();
+                spriteBatch.Begin(default, BlendState.Additive);
+
+                Main.instance.LoadProjectile(NPC.type);
+                Texture2D texture = TextureAssets.Npc[NPC.type].Value;
+
+                // Redraw the projectile with the color not influenced by light
+                Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, NPC.height * 0.5f);
+                for (int k = 0; k < NPC.oldPos.Length; k++)
                 {
-                    return false;
+                    Vector2 drawPos = (NPC.oldPos[k] - Main.screenPosition) + drawOrigin + new Vector2(0f, NPC.gfxOffY);
+                    Color color = NPC.GetAlpha(lightColor) * ((NPC.oldPos.Length - k) / (float)NPC.oldPos.Length);
+                    Main.EntitySpriteDraw(texture, drawPos, NPC.frame, color, NPC.oldRot[k], drawOrigin, NPC.scale, SpriteEffects.None, 0);
                 }
-                Vector2 drawPos = (NPC.oldPos[k] - Main.screenPosition) + drawOrigin + new Vector2(0f, NPC.gfxOffY);
-                Color color = NPC.GetAlpha(lightColor) * ((NPC.oldPos.Length - k) / (float)NPC.oldPos.Length);
-                Main.EntitySpriteDraw(texture, drawPos, NPC.frame, color, NPC.oldRot[k], drawOrigin, NPC.scale, SpriteEffects.None, 0);
+                spriteBatch.End();
+                spriteBatch.Begin();
             }
 
             return true;
@@ -372,7 +389,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 
             }
         }
-        public override void HitEffect(int hitDirection, double damage)
+        public override void HitEffect(NPC.HitInfo hit)
         {
             if (NPC.life <= 0)
             {
@@ -495,11 +512,11 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             var entitySource = NPC.GetSource_FromAI();
             int type = ModContent.ProjectileType<EyeprojGlow>();
             int typ2e = ModContent.ProjectileType<Brightness10>();
-            if (NPC.ai[3] == 80)
+            if (NPC.ai[3] == 100)
             {
                 SoundEngine.PlaySound(SoundID.Item72, NPC.Center);
-                Projectile.NewProjectile(entitySource, NPC.Center, NPC.DirectionTo(player.Center) * 10f, type, 0, 0f, Main.myPlayer);
-                Projectile.NewProjectile(entitySource, NPC.Center, NPC.DirectionTo(player.Center) * 0f, typ2e, 0, 0f, Main.myPlayer);
+                Projectile.NewProjectile(entitySource, NPC.Center, NPC.DirectionTo(player.Center) * 10f, type, 5, 0f, Main.myPlayer);
+                Projectile.NewProjectile(entitySource, NPC.Center, NPC.DirectionTo(player.Center) * 0f, typ2e, 5, 0f, Main.myPlayer);
                 NPC.ai[3] = 0;
             }
         }

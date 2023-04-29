@@ -13,7 +13,7 @@ namespace PenumbraMod.Content.NPCs.Bosses
 	{
 		public override void SetStaticDefaults()
 		{
-             DisplayName.SetDefault("Buriti Finger"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+             // DisplayName.SetDefault("Buriti Finger"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
 			
         }
 
@@ -47,7 +47,7 @@ namespace PenumbraMod.Content.NPCs.Bosses
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Buriti Finger"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Buriti Finger"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
 
         }
 
@@ -82,7 +82,7 @@ namespace PenumbraMod.Content.NPCs.Bosses
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Buriti Finger"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Buriti Finger"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
 
         }
 
@@ -124,7 +124,7 @@ namespace PenumbraMod.Content.NPCs.Bosses
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Buriti Finger"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Buriti Finger"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
 
         }
 
@@ -149,7 +149,7 @@ namespace PenumbraMod.Content.NPCs.Bosses
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Line"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Line"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
 
         }
 
@@ -183,7 +183,7 @@ namespace PenumbraMod.Content.NPCs.Bosses
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Line"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Line"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
 
         }
 

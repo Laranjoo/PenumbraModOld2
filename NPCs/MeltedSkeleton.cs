@@ -16,9 +16,9 @@ namespace PenumbraMod.Content.NPCs
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Melted Skeleton");
+			// DisplayName.SetDefault("Melted Skeleton");
 
-			Main.npcFrameCount[Type] = Main.npcFrameCount[NPCID.Zombie];
+			Main.npcFrameCount[Type] = 3;
 
 
 			NPCID.Sets.NPCBestiaryDrawModifiers value = new NPCID.Sets.NPCBestiaryDrawModifiers(0)
@@ -90,7 +90,7 @@ namespace PenumbraMod.Content.NPCs
 			});
 		}
 
-		public override void HitEffect(int hitDirection, double damage)
+		public override void HitEffect(NPC.HitInfo hit)
 		{
 
 			if (NPC.life <= 0)
@@ -114,7 +114,7 @@ namespace PenumbraMod.Content.NPCs
 
 		}
 
-		public override void OnHitPlayer(Player target, int damage, bool crit)
+		public override void OnHitPlayer(Player target, Player.HurtInfo hurtInfo)
 		{
 			int buffType = BuffID.OnFire;
 			int timeToAdd = 5 * 60; //This makes it 5 seconds, one second is 60 ticks

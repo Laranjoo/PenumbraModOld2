@@ -15,7 +15,7 @@ namespace PenumbraMod.Content.NPCs
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Strange Knife"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Strange Knife"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
             ProjectileID.Sets.CultistIsResistantTo[Projectile.type] = false;
         }
 

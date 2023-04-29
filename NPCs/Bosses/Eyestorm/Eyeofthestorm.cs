@@ -1,21 +1,22 @@
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using PenumbraMod.Common;
+using PenumbraMod.Common.Systems;
+using PenumbraMod.Content.Buffs;
+using PenumbraMod.Content.Items;
+using PenumbraMod.Content.Items.Consumables;
+using ReLogic.Utilities;
+using System;
+using System.Collections.Generic;
 using Terraria;
-using Terraria.ID;
-using Terraria.ModLoader;
+using Terraria.Audio;
+using Terraria.DataStructures;
+using Terraria.GameContent;
 using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.ItemDropRules;
-using Terraria.DataStructures;
-using Microsoft.Xna.Framework;
-using PenumbraMod.Content.Items;
-using PenumbraMod.Content.Buffs;
-using System.Collections.Generic;
-using Terraria.Audio;
-using PenumbraMod.Common.Systems;
-using PenumbraMod.Content.Items.Consumables;
-using Microsoft.Xna.Framework.Graphics;
-using Terraria.GameContent;
-using System;
 using Terraria.Graphics.CameraModifiers;
-using PenumbraMod.Common;
+using Terraria.ID;
+using Terraria.ModLoader;
 
 namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 {
@@ -24,7 +25,6 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Eye of the Storm");
             NPCID.Sets.TrailCacheLength[NPC.type] = 12; //How many copies of shadow/trail
             NPCID.Sets.TrailingMode[NPC.type] = 1;
             Main.npcFrameCount[Type] = 10;
@@ -70,6 +70,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             NPC.boss = true;
             NPC.npcSlots = 200f;
             Music = MusicLoader.GetMusicSlot(Mod, "Assets/Music/EyestormSong1");
+            SceneEffectPriority = SceneEffectPriority.BossMedium;
         }
         int radius1 = 120;
         public bool to = false;
@@ -118,6 +119,9 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         public bool d = false;
         public int a;
         public int b;
+        int cam;
+        int rotspeed = 10;
+        int idontcare;
         Vector2 QWERTY = Vector2.Zero;
 
         private void FirstPhase(Player player)
@@ -126,6 +130,9 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             NPC.ai[1]++;
             NPC.localAI[0]++;
             NPC.localAI[1]++;
+            cam++;
+            idontcare++;
+            Main.windSpeedCurrent = 1;
             if (NPC.life < NPC.lifeMax / 2)
             {
                 DoSecondPhase(player);
@@ -136,84 +143,62 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             float speed = 2f;
             float speed2 = 8f;
             float speed3 = 0f;
-
-            // IGNORE
-            if (w == true)
-            {
-                NPC.velocity *= 0.98f;
-                NPC.dontTakeDamage = true;
-
-                for (int k = 0; k < 1; k++)
-                {
-                    int dust = Dust.NewDust(NPC.position + NPC.velocity, NPC.width, NPC.height, DustID.BlueTorch, NPC.oldVelocity.X * 0f, NPC.oldVelocity.Y * 0f, Scale: 1.5f);
-                    Main.dust[dust].velocity *= 6.0f;
-                }
-            }
-            // WENOMECHAINSAMA
-            if (c == true)
-            {
-                NPC.alpha -= 5;
-                if (NPC.alpha < 0)
-                {
-                    NPC.alpha = 0;
-                }
-            }
-            // TELEPORT BOOL, APPEARS IN PLAYER POS....................................................................................................................................................................................
-            if (o == true)
-            {
-                float range2 = 2500f * 16f; // 100 tiles
-                if (NPC.DistanceSQ(player.Center) < range2 * range2)
-                {
-                    NPC.alpha = 0;
-                    NPC.position = player.Center + new Vector2(-60, -250);
-                    // Teleport
-                }
-            }
-            // BOOM EFFECT
-            if (d == true)
-            {
-
-                for (int k = 0; k < 55; k++)
-                {
-                    int dust = Dust.NewDust(NPC.position + NPC.velocity, NPC.width, NPC.height, DustID.BlueTorch, NPC.oldVelocity.X * 0f, NPC.oldVelocity.Y * 0f, Scale: 2.5f);
-                    Main.dust[dust].velocity *= 6.0f;
-                }
-                SoundEngine.PlaySound(SoundID.Item88, NPC.Center);
-            }
             if (NPC.ai[0] == 1)
             {
                 NPC.alpha = 255;
                 NPC.netUpdate = true;
             }
             //APPEAR AT PLAYER POS AND MAKE BOOM EFFECT
-            if (NPC.localAI[0] == 50)
+            if (idontcare == 51)
             {
-                o = true;
-                d = true;
+                for (int k = 0; k < 50; k++)
+                {
+                    int dust = Dust.NewDust(NPC.position + NPC.velocity, NPC.width, NPC.height, DustID.BlueTorch, NPC.oldVelocity.X * 0f, NPC.oldVelocity.Y * 0f, Scale: 2.5f);
+                    Main.dust[dust].velocity *= 6.0f;
+                }
+                SoundEngine.PlaySound(SoundID.Item88, NPC.Center);
             }
-            if (NPC.ai[0] == 51)
+            if (NPC.ai[0] == 49)
             {
-                d = false;
-                PunchCameraModifier modifier = new PunchCameraModifier(NPC.Center, (Main.rand.NextFloat() * ((float)Math.PI * 2f)).ToRotationVector2(), 20f, 16f, 30, 1000f, FullName);
+                PunchCameraModifier modifier = new PunchCameraModifier(NPC.Center, (Main.rand.NextFloat() * ((float)Math.PI * 2f)).ToRotationVector2(), 20f, 16f, 60, 1000f, FullName);
                 Main.instance.CameraModifiers.Add(modifier);
                 NPC.netUpdate = true;
             }
-            if (NPC.ai[0] == 189)
+            if (cam == 191)
             {
-                o = false;
                 NPC.netUpdate = true;
                 PunchCameraModifier modifier = new PunchCameraModifier(NPC.Center, (Main.rand.NextFloat() * ((float)Math.PI * 2f)).ToRotationVector2(), 12f, 12f, 20, 1000f, FullName);
                 Main.instance.CameraModifiers.Add(modifier);
             }
+            // CONTROL CAMERA
+            if (cam >= 52 && cam <= 160)
+            {
+                player.GetModPlayer<PenumbraGlobalPlayer>().absolutecamera = true;
+                player.GetModPlayer<PenumbraGlobalPlayer>().absolutepos = NPC.Center;
+            }
+            // POSITION
+            if (cam >= 50 && cam <= 160)
+            {
+                float range2 = 2500f * 16f;
+                if (NPC.DistanceSQ(player.Center) < range2 * range2)
+                {
+                    NPC.alpha = 0;
+                    NPC.position = player.Center + new Vector2(-60, -250);
+                }
+            }
+            if (cam >= 161 && cam <= 190)
+            {
+                player.GetModPlayer<PenumbraGlobalPlayer>().absolutepos = player.Center;
+            }
             // START FOLLOWING
-            if (NPC.localAI[1] > 190)
+            if (NPC.localAI[1] >= 190 && NPC.localAI[1] <= 389)
             {
                 NPC.velocity = NPC.DirectionTo(player.Center) * speed;
             }
             // SHOOT PROJECTILES
             if (NPC.ai[0] == 190 || NPC.ai[0] == 240 || NPC.ai[0] == 290 || NPC.ai[0] == 340)
             {
-
+                player.GetModPlayer<PenumbraGlobalPlayer>().absolutecamera = false;
                 NPC.dontTakeDamage = false;
                 var entitySource = NPC.GetSource_FromAI();
                 SoundEngine.PlaySound(SoundID.Item94, NPC.Center);
@@ -278,15 +263,19 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 NPC.netUpdate = true;
             }
             // DASH INTO PLAYER
-            if (NPC.localAI[1] >= 390 && NPC.localAI[1] <= 428)
+            if (NPC.localAI[1] == 390)
             {
-                float k = 8f;
+                float k = 12f;
                 NPC.velocity = NPC.DirectionTo(player.Center) * k;
                 NPC.dontTakeDamage = true;
 
             }
-            // SLOW DOWN AND FADE
-            if (NPC.ai[0] > 393)
+            if (NPC.localAI[1] >= 391 && NPC.localAI[1] <= 428)
+            {
+                NPC.velocity *= 0.97f;
+            }
+            // FADE
+            if (NPC.ai[0] >= 393 && NPC.ai[0] <= 427)
             {
                 NPC.alpha += 20;
                 if (NPC.alpha > 255)
@@ -304,18 +293,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             // STATIONARY
             if (NPC.ai[1] == 430)
             {
-                float d = 0f;
-                NPC.velocity = NPC.DirectionTo(player.Center) * d;
-                NPC.netUpdate = true;
-            }
-            // FADE
-            if (NPC.ai[0] > 480)
-            {
-                NPC.alpha -= 30;
-                if (NPC.alpha < 0)
-                {
-                    NPC.alpha = 0;
-                }
+                NPC.velocity = NPC.DirectionTo(player.Center) * 0f;
                 NPC.netUpdate = true;
             }
             // APPEAR AT PLAYER POS AGAIN
@@ -329,6 +307,11 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                     // Teleport
                 }
                 NPC.dontTakeDamage = false;
+                NPC.alpha -= 20;
+                if (NPC.alpha < 0)
+                {
+                    NPC.alpha = 0;
+                }
             }
             // GLOW
             if (NPC.ai[0] == 508)
@@ -387,7 +370,11 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             // SPIN MOVEMEMNT AND ALSO SHOOTING PROJECTILES
             if (NPC.localAI[0] >= 540 && NPC.localAI[0] <= 640)
             {
-                NPC.alpha -= 40;
+                NPC.alpha -= 20;
+                if (NPC.alpha < 0)
+                {
+                    NPC.alpha = 0;
+                }
                 QWERTY = player.Center;
                 NPC.Center = QWERTY + new Vector2(300, 0).RotatedBy(NPC.ai[0] / 14);
 
@@ -429,27 +416,17 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 NPC.netUpdate = true;
             }
             // DASH INTO PLAYER
-            if (NPC.localAI[1] >= 641 && NPC.localAI[1] <= 669)
+            if (NPC.ai[0] == 641)
             {
-
-                float k = 8f;
+                float k = 16f;
                 NPC.velocity = NPC.DirectionTo(player.Center) * k;
                 NPC.dontTakeDamage = true;
-
-            }
-            // SPAWN MULTIPLE PROJECTILES
-            if (NPC.ai[0] == 642)
-            {
                 NPC.netUpdate = true;
                 var entitySource = NPC.GetSource_FromAI();
                 Vector2 launchVelocity = new Vector2(-4, 1); // Create a velocity moving the left.
                 for (int i = 0; i < 10; i++)
                 {
-                    // Every iteration, rotate the newly spawned projectile by the equivalent 1/4th of a circle (MathHelper.PiOver4)
-                    // (Remember that all rotation in Terraria is based on Radians, NOT Degrees!)
                     launchVelocity = launchVelocity.RotatedBy(MathHelper.PiOver4);
-
-                    // Spawn a new projectile with the newly rotated velocity, belonging to the original projectile owner. The new projectile will inherit the spawning source of this projectile.
                     Projectile.NewProjectile(entitySource, NPC.Center, launchVelocity, ModContent.ProjectileType<EyeprojGlow2>(), NPC.damage / 3, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 }
                 const int Repeats = 80;
@@ -462,29 +439,28 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 }
                 radius1 += 2;
             }
-            // FADE AND SLOW DOWN
-            if (NPC.ai[1] > 641)
+            if (NPC.ai[0] >= 642 && NPC.ai[0] <= 699)
             {
-                NPC.alpha += 20;
+                NPC.alpha += 10;
                 if (NPC.alpha > 255)
                 {
                     NPC.alpha = 255;
                 }
+                NPC.velocity *= 0.98f;
                 NPC.netUpdate = true;
             }
-            // STOP
-            if (NPC.ai[1] >= 680 && NPC.ai[0] <= 700)
+            if (NPC.ai[1] == 670)
             {
                 NPC.friendly = false;
-                NPC.velocity = NPC.DirectionTo(player.Center) * speed3;
                 NPC.position += NPC.velocity;
                 NPC.netUpdate = true;
+                NPC.velocity = NPC.DirectionTo(player.Center) * 0f;
             }
 
             // FOLLOW AGAIN AND FADE
             if (NPC.localAI[1] >= 720 && NPC.localAI[1] <= 930)
             {
-                NPC.alpha -= 30;
+                NPC.alpha -= 20;
                 if (NPC.alpha < 0)
                 {
                     NPC.alpha = 0;
@@ -533,7 +509,16 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 NPC.netUpdate = true;
             }
             //DASH AND FADE
-            if (NPC.localAI[1] >= 932 && NPC.localAI[1] <= 979)
+            if (NPC.localAI[1] == 932)
+            {
+                NPC.friendly = false;
+                float d = 12f;
+                NPC.velocity = NPC.DirectionTo(player.Center) * d;
+                NPC.dontTakeDamage = true;
+                SoundEngine.PlaySound(SoundID.Roar, NPC.Center);
+
+            }
+            if (NPC.localAI[1] >= 933 && NPC.localAI[1] <= 979)
             {
                 NPC.alpha += 10;
                 if (NPC.alpha > 255)
@@ -541,19 +526,18 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                     NPC.alpha = 255;
                 }
                 NPC.friendly = false;
-                float d = 8f;
-                NPC.velocity = NPC.DirectionTo(player.Center) * d;
-                NPC.dontTakeDamage = true;
-
+                NPC.velocity *= 0.97f;
             }
-            //SOUND
-            if (NPC.ai[1] == 933)
+            if (NPC.localAI[1] >= 981 && NPC.localAI[1] <= 1271)
             {
+                NPC.alpha -= 10;
+                if (NPC.alpha < 180)
+                {
+                    NPC.alpha = 180;
+                }
                 NPC.friendly = false;
-                NPC.dontTakeDamage = true;
-                SoundEngine.PlaySound(SoundID.Roar, NPC.Center);
-                NPC.netUpdate = true;
-
+                float d = 2f;
+                NPC.velocity = NPC.DirectionTo(player.Center) * d;
             }
             // EFFECT
             if (NPC.ai[0] == 950)
@@ -638,7 +622,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 float range2 = 2500f * 16f; // 100 tiles
                 if (NPC.DistanceSQ(player.Center) < range2 * range2)
                 {
-                    NPC.position = player.Center + new Vector2(240, -275);
+                    NPC.position = player.Center + new Vector2(270, -375);
                     // Teleport
                 }
                 NPC.dontTakeDamage = false;
@@ -651,31 +635,14 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 NPC.position += NPC.velocity;
                 int type2 = ModContent.ProjectileType<Brightness5>();
 
-                Vector2 velocity2 = speed2 * new Vector2(0, 0);
+                Vector2 velocity2 = new Vector2(0, 0);
 
                 int damage2 = 0;
 
                 Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type2, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-            }
-            // EFFECT
-            if (NPC.localAI[0] == 1034)
-            {
-                NPC.dontTakeDamage = false;
-                var entitySource = NPC.GetSource_FromAI();
-                NPC.friendly = false;
-                NPC.position += NPC.velocity;
-
-                int type2 = ModContent.ProjectileType<Brightness6>();
-                int type3 = ModContent.ProjectileType<Brightness7>();
-                int type4 = ModContent.ProjectileType<Brightness8>();
-                Vector2 offset = player.Center + new Vector2(-270, 275);
-                Vector2 velocity2 = speed3 * new Vector2(0, 0);
-
-                int damage2 = 0;
-
-                Projectile.NewProjectile(entitySource, offset, velocity2, type2, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, offset, velocity2, type3, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, offset, velocity2, type4, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness6>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness7>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness8>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
             }
             // SECOND TELEPORT
             if (NPC.localAI[1] == 1064)
@@ -685,7 +652,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 float range2 = 2500f * 16f; // 100 tiles
                 if (NPC.DistanceSQ(player.Center) < range2 * range2)
                 {
-                    NPC.position = player.Center + new Vector2(-270, 275);
+                    NPC.position = player.Center + new Vector2(-270, 375);
                     // Teleport
                 }
                 NPC.dontTakeDamage = false;
@@ -698,31 +665,14 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 NPC.position += NPC.velocity;
                 int type2 = ModContent.ProjectileType<Brightness5>();
 
-                Vector2 velocity2 = speed2 * new Vector2(0, 0);
+                Vector2 velocity2 = new Vector2(0, 0);
 
                 int damage2 = 0;
 
                 Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type2, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-            }
-            // EFFECT
-            if (NPC.localAI[0] == 1065)
-            {
-                NPC.dontTakeDamage = false;
-                var entitySource = NPC.GetSource_FromAI();
-                NPC.friendly = false;
-                NPC.position += NPC.velocity;
-
-                int type2 = ModContent.ProjectileType<Brightness6>();
-                int type3 = ModContent.ProjectileType<Brightness7>();
-                int type4 = ModContent.ProjectileType<Brightness8>();
-                Vector2 offset = player.Center + new Vector2(-310, 50);
-                Vector2 velocity2 = speed3 * new Vector2(0, 0);
-
-                int damage2 = 0;
-
-                Projectile.NewProjectile(entitySource, offset, velocity2, type2, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, offset, velocity2, type3, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, offset, velocity2, type4, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness6>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness7>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness8>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
             }
             // THIRD TELEPORT
             if (NPC.localAI[1] == 1095)
@@ -732,44 +682,27 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 float range2 = 2500f * 16f; // 100 tiles
                 if (NPC.DistanceSQ(player.Center) < range2 * range2)
                 {
-                    NPC.position = player.Center + new Vector2(-310, 50);
+                    NPC.position = player.Center + new Vector2(-350, 50);
                     // Teleport
                 }
                 var entitySource = NPC.GetSource_FromAI();
                 NPC.position += NPC.velocity;
                 int type2 = ModContent.ProjectileType<Brightness5>();
 
-                Vector2 velocity2 = speed2 * new Vector2(0, 0);
+                Vector2 velocity2 = new Vector2(0, 0);
 
                 int damage2 = 0;
 
                 Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type2, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness6>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness7>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness8>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 NPC.dontTakeDamage = false;
                 for (int k = 0; k < 20; k++)
                 {
                     int dust = Dust.NewDust(NPC.position + NPC.velocity, NPC.width, NPC.height, DustID.BlueTorch, NPC.oldVelocity.X * 0f, NPC.oldVelocity.Y * 0f, Scale: 1.5f);
                     Main.dust[dust].velocity *= 6.0f;
                 }
-            }
-            // EFFECT
-            if (NPC.localAI[0] == 1113)
-            {
-                NPC.dontTakeDamage = false;
-                var entitySource = NPC.GetSource_FromAI();
-                NPC.friendly = false;
-                NPC.position += NPC.velocity;
-
-                int type2 = ModContent.ProjectileType<Brightness6>();
-                int type3 = ModContent.ProjectileType<Brightness7>();
-                int type4 = ModContent.ProjectileType<Brightness8>();
-                Vector2 offset = player.Center + new Vector2(-110, -250);
-                Vector2 velocity2 = speed3 * new Vector2(0, 0);
-
-                int damage2 = 0;
-
-                Projectile.NewProjectile(entitySource, offset, velocity2, type2, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, offset, velocity2, type3, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, offset, velocity2, type4, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
             }
             // FOURTH TELEPORT
             if (NPC.localAI[1] == 1143)
@@ -779,44 +712,27 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 float range2 = 2500f * 16f; // 100 tiles
                 if (NPC.DistanceSQ(player.Center) < range2 * range2)
                 {
-                    NPC.position = player.Center + new Vector2(-110, -250);
+                    NPC.position = player.Center + new Vector2(-210, -250);
                     // Teleport
                 }
                 var entitySource = NPC.GetSource_FromAI();
                 NPC.position += NPC.velocity;
                 int type2 = ModContent.ProjectileType<Brightness5>();
 
-                Vector2 velocity2 = speed2 * new Vector2(0, 0);
+                Vector2 velocity2 = new Vector2(0, 0);
 
                 int damage2 = 0;
 
                 Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type2, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness6>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness7>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness8>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 NPC.dontTakeDamage = false;
                 for (int k = 0; k < 20; k++)
                 {
                     int dust = Dust.NewDust(NPC.position + NPC.velocity, NPC.width, NPC.height, DustID.BlueTorch, NPC.oldVelocity.X * 0f, NPC.oldVelocity.Y * 0f, Scale: 1.5f);
                     Main.dust[dust].velocity *= 6.0f;
                 }
-            }
-            // EFFECT
-            if (NPC.localAI[0] == 1163)
-            {
-                NPC.dontTakeDamage = false;
-                var entitySource = NPC.GetSource_FromAI();
-                NPC.friendly = false;
-                NPC.position += NPC.velocity;
-
-                int type2 = ModContent.ProjectileType<Brightness6>();
-                int type3 = ModContent.ProjectileType<Brightness7>();
-                int type4 = ModContent.ProjectileType<Brightness8>();
-                Vector2 offset = player.Center + new Vector2(110, -50);
-                Vector2 velocity2 = speed3 * new Vector2(0, 0);
-
-                int damage2 = 0;
-
-                Projectile.NewProjectile(entitySource, offset, velocity2, type2, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, offset, velocity2, type3, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, offset, velocity2, type4, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
             }
             // FIFTH TELEPORT
             if (NPC.localAI[1] == 1193)
@@ -826,44 +742,27 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 float range2 = 2500f * 16f; // 100 tiles
                 if (NPC.DistanceSQ(player.Center) < range2 * range2)
                 {
-                    NPC.position = player.Center + new Vector2(110, -50);
+                    NPC.position = player.Center + new Vector2(310, -50);
                     // Teleport
                 }
                 var entitySource = NPC.GetSource_FromAI();
                 NPC.position += NPC.velocity;
                 int type2 = ModContent.ProjectileType<Brightness5>();
 
-                Vector2 velocity2 = speed2 * new Vector2(0, 0);
+                Vector2 velocity2 = new Vector2(0, 0);
 
                 int damage2 = 0;
 
                 Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type2, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness6>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness7>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness8>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 NPC.dontTakeDamage = false;
                 for (int k = 0; k < 20; k++)
                 {
                     int dust = Dust.NewDust(NPC.position + NPC.velocity, NPC.width, NPC.height, DustID.BlueTorch, NPC.oldVelocity.X * 0f, NPC.oldVelocity.Y * 0f, Scale: 1.5f);
                     Main.dust[dust].velocity *= 6.0f;
                 }
-            }
-            // EFFECT
-            if (NPC.localAI[0] == 1183)
-            {
-                NPC.dontTakeDamage = false;
-                var entitySource = NPC.GetSource_FromAI();
-                NPC.friendly = false;
-                NPC.position += NPC.velocity;
-
-                int type2 = ModContent.ProjectileType<Brightness6>();
-                int type3 = ModContent.ProjectileType<Brightness7>();
-                int type4 = ModContent.ProjectileType<Brightness8>();
-                Vector2 offset = player.Center + new Vector2(-230, 30);
-                Vector2 velocity2 = speed3 * new Vector2(0, 0);
-
-                int damage2 = 0;
-
-                Projectile.NewProjectile(entitySource, offset, velocity2, type2, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, offset, velocity2, type3, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, offset, velocity2, type4, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
             }
             // SIXTH TELEPORT
             if (NPC.localAI[1] == 1213)
@@ -873,44 +772,27 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 float range2 = 2500f * 16f; // 100 tiles
                 if (NPC.DistanceSQ(player.Center) < range2 * range2)
                 {
-                    NPC.position = player.Center + new Vector2(-230, 30);
+                    NPC.position = player.Center + new Vector2(-330, 30);
                     // Teleport
                 }
                 var entitySource = NPC.GetSource_FromAI();
                 NPC.position += NPC.velocity;
                 int type2 = ModContent.ProjectileType<Brightness5>();
 
-                Vector2 velocity2 = speed2 * new Vector2(0, 0);
+                Vector2 velocity2 = new Vector2(0, 0);
 
                 int damage2 = 0;
 
                 Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type2, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness6>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness7>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness8>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 NPC.dontTakeDamage = false;
                 for (int k = 0; k < 20; k++)
                 {
                     int dust = Dust.NewDust(NPC.position + NPC.velocity, NPC.width, NPC.height, DustID.BlueTorch, NPC.oldVelocity.X * 0f, NPC.oldVelocity.Y * 0f, Scale: 1.5f);
                     Main.dust[dust].velocity *= 6.0f;
                 }
-            }
-            // EFFECT
-            if (NPC.localAI[0] == 1223)
-            {
-                NPC.dontTakeDamage = false;
-                var entitySource = NPC.GetSource_FromAI();
-                NPC.friendly = false;
-                NPC.position += NPC.velocity;
-
-                int type2 = ModContent.ProjectileType<Brightness6>();
-                int type3 = ModContent.ProjectileType<Brightness7>();
-                int type4 = ModContent.ProjectileType<Brightness8>();
-                Vector2 offset = player.Center + new Vector2(100, -80);
-                Vector2 velocity2 = speed3 * new Vector2(0, 0);
-
-                int damage2 = 0;
-
-                Projectile.NewProjectile(entitySource, offset, velocity2, type2, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, offset, velocity2, type3, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, offset, velocity2, type4, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
             }
             // LAST TELEPORT
             if (NPC.localAI[1] == 1253)
@@ -920,7 +802,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 float range2 = 2500f * 16f; // 100 tiles
                 if (NPC.DistanceSQ(player.Center) < range2 * range2)
                 {
-                    NPC.position = player.Center + new Vector2(100, -80);
+                    NPC.position = player.Center + new Vector2(200, -80);
                     // Teleport
                 }
                 NPC.dontTakeDamage = false;
@@ -933,11 +815,14 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 NPC.position += NPC.velocity;
                 int type2 = ModContent.ProjectileType<Brightness5>();
 
-                Vector2 velocity2 = speed2 * new Vector2(0, 0);
+                Vector2 velocity2 = new Vector2(0, 0);
 
                 int damage2 = 0;
 
                 Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type2, damage2, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness6>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness7>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, ModContent.ProjectileType<Brightness8>(), 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
             }
             // EXPLOSION
             if (NPC.ai[1] == 1052 || NPC.ai[1] == 1114 || NPC.ai[1] == 1167 || NPC.ai[1] == 1213 || NPC.ai[1] == 1252)
@@ -1009,17 +894,12 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 
                 NPC.netUpdate = true;
             }
-            // LAST ATTACK, SPINS FAST AND SHOOTS A LOT OF PROJECTILES
+            // LAST ATTACK, SPINS AND SHOOTS A LOT OF PROJECTILES
             if (NPC.localAI[0] >= 1280 && NPC.localAI[0] <= 1560)
             {
                 NPC.alpha = 0;
-                if (NPC.alpha < 0)
-                {
-                    NPC.alpha = 0;
-                }
                 QWERTY = player.Center;
                 NPC.Center = QWERTY + new Vector2(300, 0).RotatedBy(NPC.ai[0] / 10);
-
                 NPC.dontTakeDamage = false;
             }
             // SHOOT PROJECTILES
@@ -1045,7 +925,6 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             // EFFECT
             if (NPC.ai[1] == 1600)
             {
-
                 NPC.dontTakeDamage = false;
                 var entitySource = NPC.GetSource_FromAI();
 
@@ -1059,16 +938,16 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 
                 NPC.netUpdate = true;
             }
-            if (NPC.ai[1] == 1601)
+            if (NPC.ai[1] >= 1541 && NPC.ai[1] <= 1619)
             {
-
                 NPC.dontTakeDamage = false;
                 NPC.position += NPC.velocity;
-                NPC.velocity *= 0.90f;
-                NPC.alpha = 0;
-                if (NPC.alpha < 0)
+                NPC.velocity *= 0.96f;
+                NPC.alpha += 20;
+                if (NPC.alpha > 255)
                 {
-                    NPC.alpha = 0;
+                    NPC.alpha = 255;
+                    NPC.velocity = NPC.DirectionTo(player.Center) * 0f;
                 }
 
                 NPC.netUpdate = true;
@@ -1078,7 +957,6 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             {
                 var entitySource = NPC.GetSource_FromAI();
                 NPC.position += NPC.velocity;
-
                 Vector2 velocity = new Vector2(0, 0);
                 int type = ModContent.ProjectileType<BrightnessDeath>();
                 NPC.alpha = 0;
@@ -1086,6 +964,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 {
                     NPC.alpha = 0;
                 }
+                NPC.velocity = NPC.DirectionTo(player.Center) * 0f;
                 int damage = 0;
                 Projectile.NewProjectile(entitySource, NPC.Center, velocity, type, damage, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 SoundEngine.PlaySound(SoundID.Roar, NPC.Center);
@@ -1119,28 +998,24 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public void DoSecondPhase(Player player)
         {
-            // PHASE 2 CODE:
-            // BORDER DIARY: Man, this is my first boss im making, i didnt expect that much lines of code just to make this
-            // i really really liked to do this, LETS START PHASE 2!
-
             NPC.ai[2]++;
             NPC.ai[3]++;
             NPC.localAI[2]++;
             NPC.localAI[3]++;
+            Main.windSpeedCurrent = 2;
+            Main.UseStormEffects = true;
             // BOSS DEATH ANIMATION
             if (NPC.life <= 10)
             {
                 Death(player);
-                NPC.life = 10;
+                NPC.life = 1;
                 NPC.netUpdate = true;
                 NPC.ai[2] = 0;
                 NPC.ai[3] = 0;
                 to = true;
             }
-            float speed = 2f;
             float speed2 = 8f;
             float speed3 = 0f;
-            float speed4 = 4f;
             NPC.defense = 28;
 
             Music = MusicLoader.GetMusicSlot(Mod, "Assets/Music/EyestormMusic");
@@ -1166,6 +1041,8 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 NPC.dontTakeDamage = true;
                 PunchCameraModifier modifier = new PunchCameraModifier(NPC.Center, (Main.rand.NextFloat() * ((float)Math.PI * 2f)).ToRotationVector2(), 20f, 12f, 30, 1000f, FullName);
                 Main.instance.CameraModifiers.Add(modifier);
+                player.GetModPlayer<PenumbraGlobalPlayer>().absolutecamera = true;
+                player.GetModPlayer<PenumbraGlobalPlayer>().absolutepos = NPC.Center;
             }
             if (NPC.ai[2] == 5)
             {
@@ -1237,10 +1114,12 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 
 
             }
-
-            // EFFECT
-            if (NPC.ai[3] == 120 || NPC.ai[3] == 150)
+            if (NPC.ai[3] == 121)
             {
+                SoundEngine.PlaySound(new SoundStyle("PenumbraMod/Assets/Sounds/SFX/ShieldBuild"));
+            }
+            if (NPC.ai[3] == 120 || NPC.ai[3] == 150)
+            {    
                 NPC.dontTakeDamage = true;
                 var entitySource = NPC.GetSource_FromAI();
                 NPC.position += NPC.velocity;
@@ -1277,14 +1156,9 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             if (NPC.ai[3] == 120)
             {
                 NPC.dontTakeDamage = true;
-
                 NPC.position += NPC.velocity;
                 NPC.alpha -= 20;
-
-
                 NPC.netUpdate = true;
-
-
             }
             // EFFECT
             if (NPC.ai[3] == 170)
@@ -1320,7 +1194,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 int damage = 10;
                 Projectile.NewProjectile(entitySource, velocity2, papa, type, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 Projectile.NewProjectile(entitySource, velocity2, papa, type2, damage, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-
+                player.GetModPlayer<PenumbraGlobalPlayer>().absolutepos = player.Center;
 
                 NPC.netUpdate = true;
 
@@ -1332,7 +1206,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 NPC.dontTakeDamage = true;
                 var entitySource = NPC.GetSource_FromAI();
                 NPC.position += NPC.velocity;
-
+                SoundEngine.PlaySound(new SoundStyle("PenumbraMod/Assets/Sounds/SFX/ShieldBreakIn"));
                 Vector2 velocity = new Vector2(0, 0);
                 int type = ModContent.ProjectileType<BrightnessDeath>();
                 for (int k = 0; k < 20; k++)
@@ -1371,6 +1245,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                     Attackers(player);
                 }
                 radius1 += 10;
+                player.GetModPlayer<PenumbraGlobalPlayer>().absolutecamera = false;
             }
             // FADE AND LETS START PHASE 2!
             if (NPC.ai[2] > 270 && NPC.ai[2] <= 554)
@@ -1380,10 +1255,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 {
                     NPC.alpha = 0;
                 }
-
                 NPC.netUpdate = true;
-
-
                 float d = 2f;
                 NPC.velocity = NPC.DirectionTo(player.Center) * d;
                 NPC.position += NPC.velocity;
@@ -1750,7 +1622,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 int type4 = ModContent.ProjectileType<LazerBeam2>();
                 int type5 = ModContent.ProjectileType<Line6>();
 
-                Vector2 velocity2 = speed2 * new Vector2(0, 0);
+                Vector2 velocity2 = new Vector2(0, 0);
 
                 int damage2 = 0;
 
@@ -1900,7 +1772,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                     NPC.alpha = 0;
                 }
                 QWERTY = player.Center;
-                NPC.Center = QWERTY + new Vector2(300, 0).RotatedBy(NPC.localAI[2] / 16);
+                NPC.Center = QWERTY + new Vector2(350, 0).RotatedBy(NPC.localAI[2] / 16);
 
                 NPC.dontTakeDamage = false;
             }
@@ -1911,21 +1783,16 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 var entitySource = NPC.GetSource_FromAI();
                 NPC.position += NPC.velocity;
                 SoundEngine.PlaySound(SoundID.Item94, NPC.Center);
-                Vector2 velocity2 = new Vector2(0, -10);
-                Vector2 velocity3 = new Vector2(0, 10);
-                int type2 = ModContent.ProjectileType<Eyeproj>();
+                int type2 = ModContent.ProjectileType<Eyeproj2>();
                 int type3 = ModContent.ProjectileType<Brightness4>();
                 for (int k = 0; k < 10; k++)
                 {
                     int dust = Dust.NewDust(NPC.position + NPC.velocity, NPC.width, NPC.height, DustID.BlueTorch, NPC.oldVelocity.X * 0f, NPC.oldVelocity.Y * 0f, Scale: 1.5f);
                     Main.dust[dust].velocity *= 6.0f;
                 }
-                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type2, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, NPC.Center, velocity3, type2, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, NPC.Center, velocity3, type3, 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, NPC.DirectionTo(player.Center) * 2f, type2, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, new Vector2(0, 0), type3, 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 NPC.netUpdate = true;
-
-
             }
             if (NPC.localAI[3] >= 820 && NPC.localAI[3] <= 839)
             {
@@ -1963,12 +1830,11 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 {
                     NPC.position = qwer;
                 }
-
                 NPC.alpha = 0;
                 NPC.dontTakeDamage = false;
 
             }
-            // SOME EFFECTSDSDGAGRYHGDT HELP ME THIS IS SO MUCH and explosions
+            // SOME EFFECTS and explosions
             if (NPC.ai[2] == 851 || NPC.ai[2] == 919 || NPC.ai[2] == 966 || NPC.ai[2] == 1009)
             {
                 NPC.friendly = false;
@@ -1989,7 +1855,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 
                 int velocity2 = 1;
                 int type4 = ModContent.ProjectileType<EXBEAM>();
-                Projectile.NewProjectile(entitySource, NPC.Center, NPC.DirectionTo(player.Center) * 16f * velocity2, type4, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, NPC.DirectionTo(player.Center) * 12f * velocity2, type4, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 NPC.netUpdate = true;
             }
             if (Main.masterMode)
@@ -2041,7 +1907,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 NPC.position += NPC.velocity;
                 SoundEngine.PlaySound(SoundID.Item72, NPC.Center);
                 Vector2 offset = player.Center + new Vector2(-700, 0);
-                Vector2 vel = new Vector2(14, 0);
+                Vector2 vel = new Vector2(10, 0);
                 int type2 = ModContent.ProjectileType<EyeprojGlow>();
                 Projectile.NewProjectile(entitySource, offset, vel, type2, NPC.damage / 4, 6f, Main.myPlayer, 0f, NPC.whoAmI);
                 NPC.netUpdate = true;
@@ -2053,7 +1919,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 NPC.position += NPC.velocity;
                 SoundEngine.PlaySound(SoundID.Item72, NPC.Center);
                 Vector2 offset = player.Center + new Vector2(700, 0);
-                Vector2 vel = new Vector2(-14, 0);
+                Vector2 vel = new Vector2(-10, 0);
                 int type2 = ModContent.ProjectileType<EyeprojGlow>();
                 Projectile.NewProjectile(entitySource, offset, vel, type2, NPC.damage / 4, 6f, Main.myPlayer);
                 NPC.netUpdate = true;
@@ -2092,8 +1958,6 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                     Vector2 papa = Vector2.Zero;
                     int type = ModContent.ProjectileType<LazerBeam>();
                     int type2 = ModContent.ProjectileType<Line5>();
-
-                    int damage = 20;
                     Projectile.NewProjectile(entitySource, velocity2, papa, type, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                     Projectile.NewProjectile(entitySource, velocity2, papa, type2, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 }
@@ -2174,10 +2038,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                     int dust = Dust.NewDust(NPC.position + NPC.velocity, NPC.width, NPC.height, DustID.BlueTorch, NPC.oldVelocity.X * 0f, NPC.oldVelocity.Y * 0f, Scale: 1.5f);
                     Main.dust[dust].velocity *= 6.0f;
                 }
-                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type2, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type3, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type4, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center + new Vector2(0, -17), velocity2, type, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center + new Vector2(0, -17), velocity2, type2, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center + new Vector2(0, -17), velocity2, type3, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center + new Vector2(0, -17), velocity2, type4, NPC.damage / 4, 0f, Main.myPlayer, 0f, NPC.whoAmI);
 
                 NPC.netUpdate = true;
                 if (Main.expertMode && Main.masterMode)
@@ -2204,7 +2068,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 
                     NPC.dontTakeDamage = false;
                     int damage = 0;
-                    Vector2 launchVelocity = new Vector2(-14, 1); // Create a velocity moving the left.
+                    Vector2 launchVelocity = new Vector2(-12, 1); // Create a velocity moving the left.
                     for (int i = 0; i < 1; i++)
                     {
                         // Every iteration, rotate the newly spawned projectile by random
@@ -2245,8 +2109,6 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type2, damage, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type3, damage, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 NPC.netUpdate = true;
-
-
             }
             // EFFECT
             if (NPC.ai[3] == 1520)
@@ -2260,12 +2122,6 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type, damage, 0f, Main.myPlayer, 0f, NPC.whoAmI);
 
                 NPC.netUpdate = true;
-                if (Main.masterMode)
-                {
-                    Conductors(player);
-                }
-
-
             }
             // RESET (finnaly oof)................
             if (NPC.ai[3] == 1550)
@@ -2274,7 +2130,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 var entitySource = NPC.GetSource_FromAI();
                 NPC.position += NPC.velocity;
                 Vector2 velocity2 = new Vector2(0, 0);
-                int type = ModContent.ProjectileType<BrightnessDeath>();
+                int type = ModContent.ProjectileType<BrightnessDeath>();    
                 int damage = 0;
                 Projectile.NewProjectile(entitySource, NPC.Center, velocity2, type, damage, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 NPC.netUpdate = true;
@@ -2284,10 +2140,14 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 NPC.localAI[3] = 270;
                 if (Main.masterMode)
                 {
-                    Conductors(player);
+                    if (!NPC.AnyNPCs(ModContent.NPCType<EnergyConductorMinion>()))
+                    {
+                        Conductors(player);
+                    }     
                 }
             }
         }
+        int r;
         public void Death(Player player)
         {
             for (int k = 0; k < 1; k++)
@@ -2295,6 +2155,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 int dust = Dust.NewDust(NPC.position + NPC.velocity, NPC.width, NPC.height, DustID.BlueTorch, NPC.oldVelocity.X * 0f, NPC.oldVelocity.Y * 0f, Scale: 1.5f);
                 Main.dust[dust].velocity *= 6.0f;
             }
+            r++;
             const int Repeats = 80;
             for (int i = 0; i < Repeats; ++i)
             {
@@ -2303,7 +2164,24 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 Main.dust[y].noGravity = true;
                 Main.dust[y].velocity *= 4.9f;
             }
-            radius1 -= 4;
+            if (r == 1)
+            {
+                radius1 = 1;
+                player.GetModPlayer<PenumbraGlobalPlayer>().absolutecamera = true;
+                player.GetModPlayer<PenumbraGlobalPlayer>().absolutepos = NPC.Center;
+                NPC.alpha = 0;
+            }
+            if (r < 125)
+                radius1 += 4;
+            else
+            {
+                radius1 -= 15;
+                if (radius1 < 0)
+                {
+                    radius1 = 0;
+                }
+            }
+
             NPC.ai[0] = 0;
             NPC.ai[1] = 0;
             NPC.ai[2] = 0;
@@ -2318,6 +2196,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             NPC.velocity = NPC.DirectionTo(player.Center) * d;
             a++;
             b++;
+            #region animation
             if (a == 10 || a == 20 || a == 40 || a == 60 || a == 100 || a == 140)
             {
                 var entitySource = NPC.GetSource_FromAI();
@@ -2326,7 +2205,6 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 int type = ModContent.ProjectileType<Brightness2Death>();
                 int damage = 0;
                 Projectile.NewProjectile(entitySource, NPC.Center, velocity, type, damage, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                SoundEngine.PlaySound(SoundID.Item89, NPC.Center);
                 PunchCameraModifier modifier = new PunchCameraModifier(NPC.Center, (Main.rand.NextFloat() * ((float)Math.PI * 2f)).ToRotationVector2(), 8f, 12f, 30, 1000f, FullName);
                 Main.instance.CameraModifiers.Add(modifier);
             }
@@ -2339,13 +2217,13 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             if (b == 11 || b == 21 || b == 31 || b == 41 || b == 61 || b == 101 || b == 141)
             {
                 var entitySource = NPC.GetSource_FromAI();
-                Vector2 offset = NPC.Center + Utils.RandomVector2(Main.rand, 0, 10);
+                Vector2 offset = NPC.Center + Utils.RandomVector2(Main.rand, 0, 30);
                 Vector2 velocity = new Vector2(0, 0);
                 int type2 = ModContent.ProjectileType<ExplosionDeath>();
                 Projectile.NewProjectile(entitySource, offset, velocity, type2, 0, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 SoundEngine.PlaySound(SoundID.Item89, NPC.Center);
             }
-          
+
             if (a == 120)
             {
                 var entitySource = NPC.GetSource_FromAI();
@@ -2406,9 +2284,32 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 int type2 = ModContent.ProjectileType<Line6>();
                 NPC.life = 1;
                 int damage = 999;
-                Projectile.NewProjectile(entitySource, NPC.Center, NPC.DirectionTo(player.Center) * 1f * velocity, type, damage, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Projectile.NewProjectile(entitySource, NPC.Center, NPC.DirectionTo(player.Center) * 1f * velocity, type2, damage, 0f, Main.myPlayer, 0f, NPC.whoAmI);
-                Main.NewText("[c/65b6ff:The storm rests...]");
+                Projectile.NewProjectile(entitySource, NPC.Center, NPC.DirectionTo(player.Center) * 0f, type, damage, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                Projectile.NewProjectile(entitySource, NPC.Center, NPC.DirectionTo(player.Center) * 0f, type2, damage, 0f, Main.myPlayer, 0f, NPC.whoAmI);
+                if (Main.netMode != NetmodeID.Server)
+                {
+                    int backGoreType = Mod.Find<ModGore>("Eyegore").Type;
+                    int frontGoreType = Mod.Find<ModGore>("Eyegore2").Type;
+                    int frontGoreType2 = Mod.Find<ModGore>("Eyegore3").Type;
+                    int frontGoreType3 = Mod.Find<ModGore>("Eyegore4").Type;
+                    int frontGoreType4 = Mod.Find<ModGore>("Eyegore5").Type;
+                    int frontGoreType5 = Mod.Find<ModGore>("Eyegore6").Type;
+                    int frontGoreType6 = Mod.Find<ModGore>("Eyegore7").Type;
+                    var entitySource2 = NPC.GetSource_Death();
+                    for (int i = 0; i < 1; i++)
+                    {
+                        Gore.NewGore(entitySource2, NPC.position, new Vector2(Main.rand.Next(-4, 5), Main.rand.Next(-4, 5)), backGoreType);
+                        Gore.NewGore(entitySource2, NPC.position, new Vector2(Main.rand.Next(-4, 5), Main.rand.Next(-4, 5)), frontGoreType);
+                        Gore.NewGore(entitySource2, NPC.position, new Vector2(Main.rand.Next(-4, 5), Main.rand.Next(-4, 5)), frontGoreType2);
+                        Gore.NewGore(entitySource2, NPC.position, new Vector2(Main.rand.Next(-4, 5), Main.rand.Next(-4, 5)), frontGoreType3);
+                        Gore.NewGore(entitySource2, NPC.position, new Vector2(Main.rand.Next(-4, 5), Main.rand.Next(-4, 5)), frontGoreType4);
+                        Gore.NewGore(entitySource2, NPC.position, new Vector2(Main.rand.Next(-4, 5), Main.rand.Next(-4, 5)), frontGoreType5);
+                        Gore.NewGore(entitySource2, NPC.position, new Vector2(Main.rand.Next(-4, 5), Main.rand.Next(-4, 5)), frontGoreType6);
+                    }
+
+                }
+                player.GetModPlayer<PenumbraGlobalPlayer>().absolutecamera = false;
+                Main.UseStormEffects = false;
             }
             if (a > 160)
             {
@@ -2417,8 +2318,6 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 var entitySource = NPC.GetSource_FromAI();
                 int velocity = 1;
                 int type = ModContent.ProjectileType<EyeprojKill>();
-
-
                 int damage = 99999;
                 Projectile.NewProjectile(entitySource, NPC.Center, NPC.DirectionTo(player.Center) * 16f * velocity, type, damage, 0f, Main.myPlayer, 0f, NPC.whoAmI);
                 PunchCameraModifier modifier = new PunchCameraModifier(NPC.Center, (Main.rand.NextFloat() * ((float)Math.PI * 2f)).ToRotationVector2(), 22f, 12f, 30, 1000f, FullName);
@@ -2434,6 +2333,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 radius1 += 10;
             }
             NPC.netUpdate = true;
+            #endregion
         }
         public static int Minion()
         {
@@ -2522,22 +2422,27 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color lightColor) //PreDraw for trails
         {
-            spriteBatch.End();
-            spriteBatch.Begin(default, BlendState.Additive);
-
-            Main.instance.LoadProjectile(NPC.type);
-            Texture2D texture = TextureAssets.Npc[NPC.type].Value;
-
-            // Redraw the projectile with the color not influenced by light
-            Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, NPC.height * 0.5f);
-            for (int k = 0; k < NPC.oldPos.Length; k++)
+            if (!NPC.IsABestiaryIconDummy)
             {
-                Vector2 drawPos = (NPC.oldPos[k] - Main.screenPosition) + drawOrigin + new Vector2(0f, NPC.gfxOffY);
-                Color color = NPC.GetAlpha(lightColor) * ((NPC.oldPos.Length - k) / (float)NPC.oldPos.Length);
-                Main.EntitySpriteDraw(texture, drawPos, NPC.frame, color, NPC.oldRot[k], drawOrigin, NPC.scale, SpriteEffects.None, 0);
+                spriteBatch.End();
+                spriteBatch.Begin(default, BlendState.Additive);
+
+                Main.instance.LoadProjectile(NPC.type);
+                Texture2D texture = TextureAssets.Npc[NPC.type].Value;
+
+                // Redraw the projectile with the color not influenced by light
+                Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, NPC.height * 0.5f);
+                for (int k = 0; k < NPC.oldPos.Length; k++)
+                {
+                    Vector2 drawPos = (NPC.oldPos[k] - Main.screenPosition) + drawOrigin + new Vector2(0f, NPC.gfxOffY);
+                    Color color = NPC.GetAlpha(lightColor) * ((NPC.oldPos.Length - k) / (float)NPC.oldPos.Length);
+                    if (NPC.alpha < 200)
+                        Main.EntitySpriteDraw(texture, drawPos, NPC.frame, color, NPC.oldRot[k], drawOrigin, NPC.scale, SpriteEffects.None, 0);
+                }
+                spriteBatch.End();
+                spriteBatch.Begin();
             }
-            spriteBatch.End();
-            spriteBatch.Begin();
+
             return true;
         }
         public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor)
@@ -2546,18 +2451,22 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             Texture2D shield = ModContent.Request<Texture2D>("PenumbraMod/Content/NPCs/Bosses/Eyestorm/Shield").Value;
             var effects = NPC.spriteDirection == -1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
             Vector2 drawOrigin = new Vector2(shield.Width * 0.5f, NPC.height * 0.5f);
-            for (int k = 0; k < NPC.oldPos.Length; k++)
+            if (!NPC.IsABestiaryIconDummy)
             {
-                if (NPC.alpha < 50)
+                for (int k = 0; k < NPC.oldPos.Length; k++)
                 {
-                    spriteBatch.Draw(glowMask, NPC.Center - screenPos, NPC.frame, PenumbraMod.Eyestorm, NPC.rotation, NPC.frame.Size() / 2, NPC.scale, effects, 0);
-                }
-
-                if (NPC.AnyNPCs(ModContent.NPCType<EnergyConductorMinion>()))
-                {
-                    spriteBatch.Draw(shield, NPC.Center - screenPos, null, PenumbraMod.Storm * 0.02f, NPC.rotation, drawOrigin, NPC.scale, effects, 0);
+                    if (NPC.alpha < 50)
+                    {
+                        spriteBatch.Draw(glowMask, NPC.Center - screenPos, NPC.frame, PenumbraMod.Eyestorm, NPC.rotation, NPC.frame.Size() / 2, NPC.scale, effects, 0);
+                    }
+                    
+                    if (NPC.AnyNPCs(ModContent.NPCType<EnergyConductorMinion>()))
+                    {
+                        spriteBatch.Draw(shield, NPC.Center - screenPos, null, PenumbraMod.Storm * 0.04f, NPC.rotation, drawOrigin, NPC.scale, effects, 0);
+                    }
                 }
             }
+
         }
         public override void ModifyNPCLoot(NPCLoot npcLoot)
         {
@@ -2579,9 +2488,9 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<OmniStaff>(), 2, 1));
             }
         }
-        public override void OnHitPlayer(Player t, int damage, bool crit)
+        public override void OnHitPlayer(Player target, Player.HurtInfo hurtInfo)
         {
-            t.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
+            target.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
         }
         public override bool CanHitPlayer(Player target, ref int cooldownSlot)
         {
@@ -2592,7 +2501,8 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         {
             // This sets downedMinionBoss to true, and if it was false before, it initiates a lantern night
             NPC.SetEventFlagCleared(ref DownedBossSystem.downedEyestormBoss, -1);
-
+            Main.NewText("[c/65b6ff:The storm rests...]");
+            Main.windSpeedCurrent = 0;
             // Since this hook is only ran in singleplayer and serverside, we would have to sync it manually.
             // Thankfully, vanilla sends the MessageID.WorldData packet if a BOSS was killed automatically, shortly after this hook is ran
 
@@ -2637,47 +2547,32 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             // Sets the description of this NPC that is listed in the bestiary
             bestiaryEntry.Info.AddRange(new List<IBestiaryInfoElement> {
                 BestiaryDatabaseNPCsPopulator.CommonTags.SpawnConditions.Biomes.Desert,
-                new FlavorTextBestiaryInfoElement("This entity was born in the desert, his violent storms put fear on who was close, but in the holy war, he mysteriously disappeared, leaving no trace.")
+                new FlavorTextBestiaryInfoElement("This entity was born in the desert, his violent storms put fear on who was close, ")
             });
         }
-
-        public override void HitEffect(int hitDirection, double damage)
+        bool n = false;
+        int j;
+        public override void HitEffect(NPC.HitInfo hit)
         {
-            // If the NPC dies, spawn gore and play a sound
-            if (Main.netMode == NetmodeID.Server)
+
+            if (n)
             {
-                // We don't want Mod.Find<ModGore> to run on servers as it will crash because gores are not loaded on servers
                 return;
             }
-
             if (NPC.life <= 0)
             {
-                for (int k = 0; k < 55; k++)
+                j++;
+                if (j > 5)
+                {
+                    n = true;
+                }
+                NPC.life = 5;
+                for (int k = 0; k < 15; k++)
                 {
                     int dust = Dust.NewDust(NPC.position + NPC.velocity, NPC.width, NPC.height, DustID.BlueTorch, NPC.oldVelocity.X * 0f, NPC.oldVelocity.Y * 0f, Scale: 2.2f);
                     Main.dust[dust].velocity *= 6.0f;
                 }
-                // These gores work by simply existing as a texture inside any folder which path contains "Gores/"
-                int backGoreType = Mod.Find<ModGore>("Eyegore").Type;
-                int frontGoreType = Mod.Find<ModGore>("Eyegore2").Type;
-                int frontGoreType2 = Mod.Find<ModGore>("Eyegore3").Type;
-                int frontGoreType3 = Mod.Find<ModGore>("Eyegore4").Type;
-                int frontGoreType4 = Mod.Find<ModGore>("Eyegore5").Type;
-                int frontGoreType5 = Mod.Find<ModGore>("Eyegore6").Type;
-                int frontGoreType6 = Mod.Find<ModGore>("Eyegore7").Type;
-                var entitySource = NPC.GetSource_Death();
-                for (int i = 0; i < 1; i++)
-                {
-                    Gore.NewGore(entitySource, NPC.position, new Vector2(Main.rand.Next(-3, 5), Main.rand.Next(-3, 5)), backGoreType);
-                    Gore.NewGore(entitySource, NPC.position, new Vector2(Main.rand.Next(-3, 5), Main.rand.Next(-3, 5)), frontGoreType);
-                    Gore.NewGore(entitySource, NPC.position, new Vector2(Main.rand.Next(-3, 5), Main.rand.Next(-3, 5)), frontGoreType2);
-                    Gore.NewGore(entitySource, NPC.position, new Vector2(Main.rand.Next(-3, 5), Main.rand.Next(-3, 5)), frontGoreType3);
-                    Gore.NewGore(entitySource, NPC.position, new Vector2(Main.rand.Next(-3, 5), Main.rand.Next(-3, 5)), frontGoreType4);
-                    Gore.NewGore(entitySource, NPC.position, new Vector2(Main.rand.Next(-3, 5), Main.rand.Next(-3, 5)), frontGoreType5);
-                    Gore.NewGore(entitySource, NPC.position, new Vector2(Main.rand.Next(-3, 5), Main.rand.Next(-3, 5)), frontGoreType6);
-                }
                 Main.StopRain();
-                SoundEngine.PlaySound(SoundID.Roar, NPC.Center);
             }
         }
     }

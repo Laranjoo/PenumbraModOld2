@@ -26,7 +26,7 @@ namespace PenumbraMod.Content.NPCs.Bosses
             set => NPC.ai[0] = value ? 1f : 0f;
         }
         public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Buriti");
+			// DisplayName.SetDefault("Buriti");
             NPCID.Sets.TrailCacheLength[NPC.type] = 14; //How many copies of shadow/trail
             NPCID.Sets.TrailingMode[NPC.type] = 1;
             NPCDebuffImmunityData debuffData = new NPCDebuffImmunityData
@@ -1153,24 +1153,28 @@ namespace PenumbraMod.Content.NPCs.Bosses
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color lightColor) //PreDraw for trails
         {
-            spriteBatch.End();
-            spriteBatch.Begin(default, BlendState.Additive);
-            if (NPC.life < NPC.lifeMax / 3)
+            if (!NPC.IsABestiaryIconDummy)
             {
-                Main.instance.LoadProjectile(NPC.type);
-                Texture2D texture = TextureAssets.Npc[NPC.type].Value;
-
-                // Redraw the projectile with the color not influenced by light
-                Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, NPC.height * 0.5f);
-                for (int k = 0; k < NPC.oldPos.Length; k++)
+                spriteBatch.End();
+                spriteBatch.Begin(default, BlendState.Additive);
+                if (NPC.life < NPC.lifeMax / 3)
                 {
-                    Vector2 drawPos = (NPC.oldPos[k] - Main.screenPosition) + drawOrigin + new Vector2(0f, NPC.gfxOffY);
-                    Color color = NPC.GetAlpha(lightColor) * ((NPC.oldPos.Length - k) / (float)NPC.oldPos.Length);
-                    Main.EntitySpriteDraw(texture, drawPos, NPC.frame, color, NPC.oldRot[k], drawOrigin, NPC.scale, SpriteEffects.None, 0);
+                    Main.instance.LoadProjectile(NPC.type);
+                    Texture2D texture = TextureAssets.Npc[NPC.type].Value;
+
+                    // Redraw the projectile with the color not influenced by light
+                    Vector2 drawOrigin = new Vector2(texture.Width * 0.5f, NPC.height * 0.5f);
+                    for (int k = 0; k < NPC.oldPos.Length; k++)
+                    {
+                        Vector2 drawPos = (NPC.oldPos[k] - Main.screenPosition) + drawOrigin + new Vector2(0f, NPC.gfxOffY);
+                        Color color = NPC.GetAlpha(lightColor) * ((NPC.oldPos.Length - k) / (float)NPC.oldPos.Length);
+                        Main.EntitySpriteDraw(texture, drawPos, NPC.frame, color, NPC.oldRot[k], drawOrigin, NPC.scale, SpriteEffects.None, 0);
+                    }
                 }
+                spriteBatch.End();
+                spriteBatch.Begin();
             }
-            spriteBatch.End();
-            spriteBatch.Begin();
+            
             return true;
         }
         public override void ModifyNPCLoot(NPCLoot npcLoot) {
@@ -1213,7 +1217,7 @@ namespace PenumbraMod.Content.NPCs.Bosses
             });
         }
 
-        public override void HitEffect(int hitDirection, double damage)
+        public override void HitEffect(NPC.HitInfo hit)
         {
             if (NPC.life <= 0)
             {

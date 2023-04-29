@@ -16,7 +16,7 @@ namespace PenumbraMod.Content.NPCs
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Marshmellow Slime");
+			// DisplayName.SetDefault("Marshmellow Slime");
 
 			Main.npcFrameCount[Type] = 2;
 			NPCID.Sets.NPCBestiaryDrawModifiers value = new NPCID.Sets.NPCBestiaryDrawModifiers(0)
@@ -70,7 +70,7 @@ namespace PenumbraMod.Content.NPCs
 			});
 		}
 
-		public override void HitEffect(int hitDirection, double damage)
+		public override void HitEffect(NPC.HitInfo hit)
 		{
 
 			if (NPC.life <= 0)

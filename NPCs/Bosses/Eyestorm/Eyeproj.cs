@@ -1,7 +1,9 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PenumbraMod.Common;
 using PenumbraMod.Common.Base;
 using PenumbraMod.Content.Buffs;
+using ReLogic.Utilities;
 using System;
 using Terraria;
 using Terraria.Audio;
@@ -17,15 +19,15 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Bolt"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Storm Bolt"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
             Main.projFrames[Projectile.type] = 4;
         }
 
         public override void SetDefaults()
         {
             Projectile.damage = 15;
-            Projectile.width = 36;
-            Projectile.height = 18;
+            Projectile.width = 33;
+            Projectile.height = 14;
             Projectile.friendly = false;
             Projectile.hostile = true;
             Projectile.penetrate = -1;
@@ -36,11 +38,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             Projectile.timeLeft = 600;
             Projectile.aiStyle = -1;
             Projectile.netImportant = true;
-            Projectile.scale = 0.6f;
         }
-        public override void ModifyHitPlayer(Player t, ref int damage, ref bool crit)
+        public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
-            t.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
+            target.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
         }
 
         public override void AI()
@@ -72,7 +73,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         public override string Texture => "PenumbraMod/EMPTY";
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Bolt"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Storm Bolt"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -104,7 +105,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Bolt");
+            // DisplayName.SetDefault("Storm Bolt");
             ProjectileID.Sets.TrailCacheLength[Projectile.type] = 9; // The length of old position to be recorded
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;// By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
@@ -124,13 +125,13 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             Projectile.timeLeft = 600;
             Projectile.aiStyle = -1;
         }
-        public override void OnHitPlayer(Player target, int damage, bool crit)
+        public override void OnHitPlayer(Player target, Player.HurtInfo info)
         {
             Projectile.Kill();
         }
-        public override void ModifyHitPlayer(Player t, ref int damage, ref bool crit)
+        public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
-            t.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
+            target.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
         }
 
         public static float easeInOutQuad(float x)
@@ -158,7 +159,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         {
             Main.instance.LoadProjectile(Projectile.type);
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
-
+            Texture2D glow = ModContent.Request<Texture2D>("PenumbraMod/Content/NPCs/Bosses/Eyestorm/EyeprojGlowEf").Value;
             // Redraw the projectile with the color not influenced by light
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
@@ -179,7 +180,9 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                         lerpedAngle = Utils.AngleLerp(Projectile.rotation, Projectile.oldRot[i], easeInOutQuad(j));
                     lerpedPos += Projectile.Size / 2;
                     lerpedPos -= Main.screenPosition;
+                    Main.EntitySpriteDraw(glow, lerpedPos, null, Color.White * 0.1f * (1 - ((float)i / (float)Projectile.oldPos.Length)), lerpedAngle, new Vector2(texture.Width / 2, texture.Height / 2), 1, SpriteEffects.None, 0);
                     Main.EntitySpriteDraw(texture, lerpedPos, null, color * 0.5f * (1 - ((float)i / (float)Projectile.oldPos.Length)), lerpedAngle, new Vector2(texture.Width / 2, texture.Height / 2), 1, SpriteEffects.None, 0);
+
                 }
             }
             return true;
@@ -199,7 +202,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Bolt");
+            // DisplayName.SetDefault("Storm Bolt");
             ProjectileID.Sets.TrailCacheLength[Projectile.type] = 9; // The length of old position to be recorded
             ProjectileID.Sets.TrailingMode[Projectile.type] = 2;// By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
@@ -219,13 +222,13 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             Projectile.timeLeft = 600;
             Projectile.aiStyle = -1;
         }
-        public override void OnHitPlayer(Player target, int damage, bool crit)
+        public override void OnHitPlayer(Player target, Player.HurtInfo info)
         {
             Projectile.Kill();
         }
-        public override void ModifyHitPlayer(Player t, ref int damage, ref bool crit)
+        public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
-            t.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
+            target.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
         }
 
         public static float easeInOutQuad(float x)
@@ -254,7 +257,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         {
             Main.instance.LoadProjectile(Projectile.type);
             Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
-
+            Texture2D glow = ModContent.Request<Texture2D>("PenumbraMod/Content/NPCs/Bosses/Eyestorm/EyeprojGlowEf").Value;
             // Redraw the projectile with the color not influenced by light
             for (int i = 0; i < Projectile.oldPos.Length; i++)
             {
@@ -275,7 +278,9 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                         lerpedAngle = Utils.AngleLerp(Projectile.rotation, Projectile.oldRot[i], easeInOutQuad(j));
                     lerpedPos += Projectile.Size / 2;
                     lerpedPos -= Main.screenPosition;
+                    Main.EntitySpriteDraw(glow, lerpedPos, null, Color.White * 0.1f * (1 - ((float)i / (float)Projectile.oldPos.Length)), lerpedAngle, new Vector2(texture.Width / 2, texture.Height / 2), 1, SpriteEffects.None, 0);
                     Main.EntitySpriteDraw(texture, lerpedPos, null, color * 0.5f * (1 - ((float)i / (float)Projectile.oldPos.Length)), lerpedAngle, new Vector2(texture.Width / 2, texture.Height / 2), 1, SpriteEffects.None, 0);
+
                 }
             }
             return true;
@@ -295,7 +300,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Bolt"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Storm Bolt"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
             Main.projFrames[Projectile.type] = 4;
         }
 
@@ -314,11 +319,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             Projectile.timeLeft = 600;
             Projectile.aiStyle = -1;
             Projectile.netImportant = true;
-            Projectile.scale = 0.7f;
         }
-        public override void ModifyHitPlayer(Player t, ref int damage, ref bool crit)
+        public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
-            t.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
+            target.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
         }
         public override void AI()
         {
@@ -348,7 +352,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Bolt"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Storm Bolt"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
             Main.projFrames[Projectile.type] = 4;
         }
 
@@ -366,11 +370,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             Projectile.timeLeft = 240;
             Projectile.aiStyle = -1;
             Projectile.netImportant = true;
-            Projectile.scale = 0.7f;
         }
-        public override void ModifyHitPlayer(Player t, ref int damage, ref bool crit)
+        public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
-            t.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
+            target.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
         }
         int f;
         public override void AI()
@@ -420,7 +423,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Bolt"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Storm Bolt"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
             Main.projFrames[Projectile.type] = 4;
         }
 
@@ -470,7 +473,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Bolt"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Storm Bolt"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
             Main.projFrames[Projectile.type] = 4;
         }
 
@@ -489,11 +492,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             Projectile.timeLeft = 600;
             Projectile.aiStyle = -1;
             Projectile.netImportant = true;
-            Projectile.scale = 0.7f;
         }
-        public override void ModifyHitPlayer(Player t, ref int damage, ref bool crit)
+        public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers)
         {
-            t.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
+            target.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
         }
         public override void AI()
         {
@@ -523,7 +525,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -570,7 +572,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -606,7 +608,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -638,11 +640,6 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     }
     public class EXBEAM : ModProjectile
     {
-        public override void SetStaticDefaults()
-        {
-            DisplayName.SetDefault("Explosion Warning"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
-        }
-
         public override void SetDefaults()
         {
             Projectile.width = 150;
@@ -658,15 +655,41 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             Projectile.netImportant = true;
 
         }
+        int counter;
         public override Color? GetAlpha(Color lightColor)
         {
-            return new Color(0, 0, 255, 0) * Projectile.Opacity;
-
+            if (counter >= 40 && counter <= 50 || counter >= 60 && counter <= 70)
+                return new Color(0, 225, 225, 0) * Projectile.Opacity;
+            else
+                return new Color(0, 0, 255, 0) * Projectile.Opacity;
         }
-        int counter;
+        float intensity = 0f;
+        int c;
         public override void AI()
         {
             counter++;
+            c++;
+            const float alpha = 0.03f;
+
+            if (c < 40)
+            {
+                Projectile.rotation += 0.2f;
+                intensity += alpha;
+                if (intensity > 1f)
+                {
+                    intensity = 1f;
+                }
+            }
+            else
+            {
+                Projectile.rotation += 0.9f;
+                intensity -= alpha;
+                if (intensity < 0f)
+                {
+                    intensity = 0f;
+                }
+            }
+
             if (counter == 40)
             {
                 Projectile.NewProjectile(Projectile.InheritSource(Projectile), Projectile.Center, Projectile.velocity, ModContent.ProjectileType<Brightness6>(), 0, 0f, Main.myPlayer);
@@ -676,7 +699,21 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 Projectile.NewProjectile(Projectile.InheritSource(Projectile), Projectile.Center, Projectile.velocity, ModContent.ProjectileType<Brightness6>(), 0, 0f, Main.myPlayer);
             }
             Projectile.velocity *= 0.96f;
+
         }
+        public override bool PreDraw(ref Color lightColor)
+        {
+            Texture2D texture = TextureAssets.Projectile[Projectile.type].Value;
+            Texture2D glow = ModContent.Request<Texture2D>("PenumbraMod/Content/NPCs/Bosses/Eyestorm/Brightness9").Value;
+            Color color = Projectile.GetAlpha(lightColor);
+            Vector2 pos = Projectile.Center + Utils.RandomVector2(Main.rand, 50, 50);
+            Vector2 pos2 = Projectile.Center + Utils.RandomVector2(Main.rand, -50, -50);
+            Main.EntitySpriteDraw(glow, pos - Main.screenPosition, null, color * intensity, Projectile.rotation, new Vector2(texture.Width / 2, texture.Height / 2), new Vector2(1, 2), SpriteEffects.None, 0);
+            Main.EntitySpriteDraw(glow, pos2 - Main.screenPosition, null, color * intensity, Projectile.rotation, new Vector2(texture.Width / 2, texture.Height / 2), new Vector2(1.2f, 1.3f), SpriteEffects.None, 0);
+
+            return true;
+        }
+
         public override void Kill(int timeLeft)
         {
             for (int i = 0; i < 20; i++)
@@ -687,6 +724,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             SoundEngine.PlaySound(SoundID.Item89, Projectile.Center);
             Projectile.NewProjectile(Projectile.InheritSource(Projectile), Projectile.Center, Projectile.velocity, ModContent.ProjectileType<EXBEAMHIT>(), 10, 0f, Main.myPlayer);
             Projectile.NewProjectile(Projectile.InheritSource(Projectile), Projectile.Center, Projectile.velocity, ModContent.ProjectileType<Brightness6>(), 0, 0f, Main.myPlayer);
+            Projectile.NewProjectile(Projectile.InheritSource(Projectile), Projectile.Center, Projectile.velocity, ModContent.ProjectileType<Brightness7>(), 0, 0f, Main.myPlayer);
             Projectile.NewProjectile(Projectile.InheritSource(Projectile), Projectile.Center, Projectile.velocity, ModContent.ProjectileType<Brightness8>(), 0, 0f, Main.myPlayer);
         }
     }
@@ -694,7 +732,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Explosion"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Explosion"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -713,25 +751,26 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             Projectile.netImportant = true;
 
         }
-        public override void OnHitPlayer(Player target, int damage, bool crit)
+        public override void OnHitPlayer(Player target, Player.HurtInfo info)
         {
             target.AddBuff(ModContent.BuffType<LowVoltage>(), 120);
         }
         public override Color? GetAlpha(Color lightColor)
         {
-            return new Color(0, 0, 255, 0) * Projectile.Opacity;
+            return new Color(0, 225, 225, 0) * Projectile.Opacity;
 
         }
         public override void AI()
         {
             Projectile.alpha += 30;
+            Projectile.scale += 0.1f;
         }
     }
     public class Brightness3 : ModProjectile
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -779,7 +818,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -827,7 +866,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -874,7 +913,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -906,7 +945,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -938,7 +977,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -973,7 +1012,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -1012,7 +1051,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -1044,7 +1083,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -1079,7 +1118,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -1127,7 +1166,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Brightness"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
         }
 
         public override void SetDefaults()
@@ -1162,9 +1201,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Beam");
+            // DisplayName.SetDefault("Storm Beam");
             Main.projFrames[Projectile.type] = 2;
             GameShaders.Armor.GetShaderFromItemId(3527).UseColor(new Color(0, 0, 255));
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -1189,7 +1229,14 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public override void AI()
         {
-
+            if (!NPC.AnyNPCs(ModContent.NPCType<Eyeofthestorm>()))
+            {
+                Projectile.Kill();
+            }
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
             Player owner = Main.player[Projectile.owner];
             counter++;
             if (counter >= 2 && counter <= 29)
@@ -1208,7 +1255,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                     Projectile.alpha = 255;
                 }
                 Projectile.scale += 0.03f;
-                Projectile.velocity.Y -= 0.05f;
+                Projectile.velocity.Y -= 3f;
             }
             if (counter == 30)
             {
@@ -1224,8 +1271,9 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Beam");
+            // DisplayName.SetDefault("Storm Beam");
             Main.projFrames[Projectile.type] = 2;
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -1250,7 +1298,14 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public override void AI()
         {
-
+            if (!NPC.AnyNPCs(ModContent.NPCType<Eyeofthestorm>()))
+            {
+                Projectile.Kill();
+            }
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
             Player owner = Main.player[Projectile.owner];
             counter++;
             if (counter >= 2 && counter <= 29)
@@ -1281,9 +1336,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Laser");
+            // DisplayName.SetDefault("Storm Laser");
             Main.projFrames[Projectile.type] = 4;
             GameShaders.Armor.GetShaderFromItemId(3527).UseColor(new Color(0, 0, 255));
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -1309,7 +1365,14 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public override void AI()
         {
-
+            if (!NPC.AnyNPCs(ModContent.NPCType<Eyeofthestorm>()))
+            {
+                Projectile.Kill();
+            }
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
             Player owner = Main.player[Projectile.owner];
             counter++;
             counter2++;
@@ -1329,7 +1392,6 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                     Projectile.alpha = 255;
                 }
                 Projectile.scale += 0.01f;
-                Projectile.velocity.Y -= 0.05f;
             }
             if (counter == 60)
             {
@@ -1344,11 +1406,11 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             {
                 Projectile.frame = 1;
             }
-            if (counter == 80)
+            if (counter == 75)
             {
                 Projectile.frame = 2;
             }
-            if (counter == 90)
+            if (counter == 80)
             {
                 Projectile.frame = 3;
                 counter = 70;
@@ -1415,8 +1477,9 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Beam");
+            // DisplayName.SetDefault("Storm Beam");
             Main.projFrames[Projectile.type] = 2;
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -1442,7 +1505,14 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public override void AI()
         {
-
+            if (!NPC.AnyNPCs(ModContent.NPCType<Eyeofthestorm>()))
+            {
+                Projectile.Kill();
+            }
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
             Player owner = Main.player[Projectile.owner];
             counter++;
             if (counter >= 2 && counter <= 59)
@@ -1474,8 +1544,9 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Beam");
+            // DisplayName.SetDefault("Storm Beam");
             Main.projFrames[Projectile.type] = 2;
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -1500,7 +1571,14 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public override void AI()
         {
-
+            if (!NPC.AnyNPCs(ModContent.NPCType<Eyeofthestorm>()))
+            {
+                Projectile.Kill();
+            }
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
             Player owner = Main.player[Projectile.owner];
             counter++;
             if (counter >= 2 && counter <= 59)
@@ -1532,9 +1610,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Beam");
+            // DisplayName.SetDefault("Storm Beam");
             Main.projFrames[Projectile.type] = 4;
             GameShaders.Armor.GetShaderFromItemId(3527).UseColor(new Color(0, 0, 255));
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -1561,7 +1640,14 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public override void AI()
         {
-
+            if (!NPC.AnyNPCs(ModContent.NPCType<Eyeofthestorm>()))
+            {
+                Projectile.Kill();
+            }
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
             Player owner = Main.player[Projectile.owner];
             counter++;
             counter2++;
@@ -1581,7 +1667,6 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                     Projectile.alpha = 255;
                 }
                 Projectile.scale += 0.01f;
-                Projectile.velocity.Y -= 0.05f;
             }
             if (counter == 60)
             {
@@ -1596,11 +1681,11 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             {
                 Projectile.frame = 1;
             }
-            if (counter == 80)
+            if (counter == 75)
             {
                 Projectile.frame = 2;
             }
-            if (counter == 90)
+            if (counter == 80)
             {
                 Projectile.frame = 3;
                 counter = 70;
@@ -1668,9 +1753,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Beam");
+            // DisplayName.SetDefault("Storm Beam");
             // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
             GameShaders.Armor.GetShaderFromItemId(3527).UseColor(new Color(0, 0, 255));
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -1696,10 +1782,11 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public override void AI()
         {
-            Projectile.alpha += 20;
+            Projectile.alpha += 10;
             Projectile.scale += 0.05f;
-            SoundEngine.PlaySound(SoundID.Thunder, Projectile.position);
-            PunchCameraModifier modifier = new PunchCameraModifier(Projectile.Center, (Main.rand.NextFloat() * ((float)Math.PI * 2f)).ToRotationVector2(), 12f, 6f, 20, 1000f, FullName);
+            Projectile.velocity.Y -= 3f;
+            SoundEngine.PlaySound(SoundID.Thunder, Projectile.Center);
+            PunchCameraModifier modifier = new PunchCameraModifier(Projectile.Center, (Main.rand.NextFloat() * ((float)Math.PI * 2f)).ToRotationVector2(), 18f, 8f, 30, 1000f, FullName);
             Main.instance.CameraModifiers.Add(modifier);
         }
     }
@@ -1708,9 +1795,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Lightning Beam");
+            // DisplayName.SetDefault("Lightning Beam");
             // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
-            GameShaders.Armor.GetShaderFromItemId(3527).UseColor(new Color(0, 0, 255));
+            GameShaders.Armor.GetShaderFromItemId(1069).UseColor(new Color(0, 0, 255));
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -1728,15 +1816,26 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             Projectile.netImportant = true;
             Projectile.alpha = 180;
         }
+        int i;
         public override Color? GetAlpha(Color lightColor)
         {
-            return new Color(0, 50, 255, 0) * Projectile.Opacity;
-
+            if (i < 40)
+                return new Color(0, 0, 255, 0) * Projectile.Opacity;
+            else
+                return new Color(0, 225, 225, 0) * Projectile.Opacity;
         }
-        int i;
+
         public override void AI()
         {
             i++;
+            if (!NPC.AnyNPCs(ModContent.NPCType<Eyeofthestorm>()))
+            {
+                Projectile.Kill();
+            }
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
             if (i == 40)
             {
                 Projectile.hostile = true;
@@ -1755,7 +1854,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
             Projectile.scale += 0.05f;
 
         }
-         int a;
+        int a;
         public override bool PreDraw(ref Color lightColor)
         {
             Main.instance.LoadProjectile(Projectile.type);
@@ -1807,9 +1906,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Lightning Beam");
+            // DisplayName.SetDefault("Lightning Beam");
             // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
-            GameShaders.Armor.GetShaderFromItemId(3527).UseColor(new Color(0, 0, 255));
+            GameShaders.Armor.GetShaderFromItemId(1059).UseColor(new Color(0, 0, 255));
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -1830,13 +1930,23 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public override Color? GetAlpha(Color lightColor)
         {
-            return new Color(0, 50, 255, 0) * Projectile.Opacity;
-
+            if (i < 40)
+                return new Color(0, 0, 255, 0) * Projectile.Opacity;
+            else
+                return new Color(0, 225, 225, 0) * Projectile.Opacity;
         }
         int i;
         public override void AI()
         {
             i++;
+            if (!NPC.AnyNPCs(ModContent.NPCType<Eyeofthestorm>()))
+            {
+                Projectile.Kill();
+            }
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
             if (i == 40)
             {
                 Projectile.hostile = true;
@@ -1906,9 +2016,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Lightning Beam");
+            // DisplayName.SetDefault("Lightning Beam");
             // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
-            GameShaders.Armor.GetShaderFromItemId(3527).UseColor(new Color(0, 0, 255));
+            GameShaders.Armor.GetShaderFromItemId(1059).UseColor(new Color(0, 0, 255));
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -1929,13 +2040,23 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public override Color? GetAlpha(Color lightColor)
         {
-            return new Color(0, 50, 255, 0) * Projectile.Opacity;
-
+            if (i < 40)
+                return new Color(0, 0, 255, 0) * Projectile.Opacity;
+            else
+                return new Color(0, 225, 225, 0) * Projectile.Opacity;
         }
         int i;
         public override void AI()
         {
             i++;
+            if (!NPC.AnyNPCs(ModContent.NPCType<Eyeofthestorm>()))
+            {
+                Projectile.Kill();
+            }
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
             if (i == 40)
             {
                 Projectile.hostile = true;
@@ -2004,9 +2125,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Lightning Beam");
+            // DisplayName.SetDefault("Lightning Beam");
             // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
-            GameShaders.Armor.GetShaderFromItemId(3527).UseColor(new Color(0, 0, 255));
+            GameShaders.Armor.GetShaderFromItemId(1059).UseColor(new Color(0, 0, 255));
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -2027,13 +2149,23 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public override Color? GetAlpha(Color lightColor)
         {
-            return new Color(0, 50, 255, 0) * Projectile.Opacity;
-
+            if (i < 40)
+                return new Color(0, 0, 255, 0) * Projectile.Opacity;
+            else
+                return new Color(0, 225, 225, 0) * Projectile.Opacity;
         }
         int i;
         public override void AI()
         {
             i++;
+            if (!NPC.AnyNPCs(ModContent.NPCType<Eyeofthestorm>()))
+            {
+                Projectile.Kill();
+            }
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
             if (i == 40)
             {
                 Projectile.hostile = true;
@@ -2102,9 +2234,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
 
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Lightning Beam");
+            // DisplayName.SetDefault("Lightning Beam");
             // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
-            GameShaders.Armor.GetShaderFromItemId(3527).UseColor(new Color(0, 0, 255));
+            GameShaders.Armor.GetShaderFromItemId(1059).UseColor(new Color(0, 0, 255));
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -2125,13 +2258,23 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         }
         public override Color? GetAlpha(Color lightColor)
         {
-            return new Color(0, 50, 255, 0) * Projectile.Opacity;
-
+            if (i < 40)
+                return new Color(0, 0, 255, 0) * Projectile.Opacity;
+            else
+                return new Color(0, 225, 225, 0) * Projectile.Opacity;
         }
         int i;
         public override void AI()
         {
             i++;
+            if (!NPC.AnyNPCs(ModContent.NPCType<Eyeofthestorm>()))
+            {
+                Projectile.Kill();
+            }
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
             if (i == 40)
             {
                 Projectile.hostile = true;
@@ -2201,8 +2344,9 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Storm Beam");
+            // DisplayName.SetDefault("Storm Beam");
             // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -2229,15 +2373,23 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         {
             Projectile.alpha += 20;
             Projectile.scale += 0.05f;
-
+            if (!NPC.AnyNPCs(ModContent.NPCType<Eyeofthestorm>()))
+            {
+                Projectile.Kill();
+            }
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
         }
     }
     public class Warning : ModProjectile
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Beams Warning");
+            // DisplayName.SetDefault("Beams Warning");
             // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            ProjectileID.Sets.DrawScreenCheckFluff[Type] = 2400;
         }
         public override void SetDefaults()
         {
@@ -2276,6 +2428,10 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                 Projectile.alpha += 20;
             }
             Projectile.scale += 0.05f;
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
         }
     }
 
@@ -2283,7 +2439,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Arrows"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Arrows"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
             Main.projFrames[Projectile.type] = 4;
         }
 
@@ -2312,15 +2468,14 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
         public override void AI()
         {
             t++;
-            int dust = Dust.NewDust(Projectile.Center, 0, 0, DustID.BlueTorch, 0f, 0f, 0);
-            Main.dust[dust].noGravity = true;
-            Main.dust[dust].velocity *= 3f;
-            Main.dust[dust].scale = (float)Main.rand.Next(100, 170) * 0.012f;
             if (t < 30)
             {
                 Projectile.alpha -= 20;
             }
-
+            if (Main.npc[PenumbraGlobalNPC.eyeStorm].life < 10)
+            {
+                Projectile.Kill();
+            }
             Player player = Main.player[Projectile.owner];
             player.heldProj = Projectile.whoAmI;
             deg = Projectile.ai[1];
@@ -2347,7 +2502,7 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
     {
         public override void SetStaticDefaults()
         {
-            DisplayName.SetDefault("Explosion"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+            // DisplayName.SetDefault("Explosion"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
             Main.projFrames[Projectile.type] = 7;
         }
 
@@ -2385,6 +2540,69 @@ namespace PenumbraMod.Content.NPCs.Bosses.Eyestorm
                     Projectile.frame = 0;
             }
 
+        }
+    }
+    public class LoopSoundProj : ModProjectile
+    {
+        public override string Texture => "PenumbraMod/EMPTY";
+        internal enum ActiveSoundShowcaseStyle
+        {
+            LoopedSoundAdvanced,
+            n,
+        }
+        private ActiveSoundShowcaseStyle Style
+        {
+            get => (ActiveSoundShowcaseStyle)Projectile.ai[0];
+            set => Projectile.ai[0] = (float)value;
+        }
+        SlotId soundSlot;
+        SoundStyle soundStyleIgniteLoop = new SoundStyle("PenumbraMod/Assets/Sounds/SFX/ShieldAmbience")
+        {
+            IsLooped = true,
+            SoundLimitBehavior = SoundLimitBehavior.ReplaceOldest
+        };
+        public override void SetDefaults()
+        {
+            Projectile.width = 5;
+            Projectile.height = 5;
+            Projectile.penetrate = -1; // Can bounce 3 times and dies on 4th tile collide
+        }
+        public override void AI()
+        {
+            Projectile.timeLeft = 2;
+            NPC npc = PenumbraUtils.NPCExists(Projectile.ai[1], ModContent.NPCType<EnergyConductorMinion>());
+            Projectile.Center = npc.Center;
+            if (npc.life <= 0)
+            {
+                Projectile.Kill();
+            }
+            switch (Style)
+            {
+                case ActiveSoundShowcaseStyle.LoopedSoundAdvanced:
+                    if (!SoundEngine.TryGetActiveSound(soundSlot, out var _))
+                    {
+                        var tracker = new ProjectileAudioTracker(Projectile);
+                        soundSlot = SoundEngine.PlaySound(soundStyleIgniteLoop, Projectile.position, soundInstance =>
+                        {
+                            soundInstance.Position = Projectile.position;
+                            return tracker.IsActiveAndInGame();
+                        });
+                    }
+                    break;
+                case ActiveSoundShowcaseStyle.n:
+                    goto case ActiveSoundShowcaseStyle.LoopedSoundAdvanced;
+            }
+        }
+
+        public override void Kill(int timeLeft)
+        {
+            if (Style == ActiveSoundShowcaseStyle.LoopedSoundAdvanced)
+            {
+                if (SoundEngine.TryGetActiveSound(soundSlot, out var activeSound))
+                {
+                    activeSound.Stop();
+                }
+            }
         }
     }
 }

@@ -24,10 +24,10 @@ namespace PenumbraMod.Content.NPCs
 	public class vhcmnpc : ModNPC
 	{
 		public int NumberOfTimesTalkedTo = 0;
-
-		public override void SetStaticDefaults() {
+        public const string ShopName = "Shop";
+        public override void SetStaticDefaults() {
 			// DisplayName automatically assigned from localization files, but the commented line below is the normal approach.
-			DisplayName.SetDefault("Vhcm");
+			// DisplayName.SetDefault("Vhcm");
 			Main.npcFrameCount[Type] = 26; // The amount of frames the NPC has
 
 			NPCID.Sets.ExtraFramesCount[Type] = 9; // Generally for Town NPCs, but this is how the NPC does extra things such as sitting in a chair and talking to other NPCs.
@@ -89,7 +89,7 @@ namespace PenumbraMod.Content.NPCs
 
 			});
 		}
-		public override void HitEffect(int hitDirection, double damage) {
+		public override void HitEffect(NPC.HitInfo hit) {
 			int num = NPC.life > 0 ? 1 : 5;
 
 			for (int k = 0; k < num; k++) {
@@ -97,7 +97,7 @@ namespace PenumbraMod.Content.NPCs
 			}
 		}
 
-		public override bool CanTownNPCSpawn(int numTownNPCs, int money) { // Requirements for the town NPC to spawn.
+		public override bool CanTownNPCSpawn(int numTownNPCs)/* tModPorter Suggestion: Copy the implementation of NPC.SpawnAllowed_Merchant in vanilla if you to count money, and be sure to set a flag when unlocked, so you don't count every tick. */ { // Requirements for the town NPC to spawn.
 			for (int k = 0; k < 255; k++) {
 				Player player = Main.player[k];
 				if (!player.active) {
@@ -167,80 +167,36 @@ namespace PenumbraMod.Content.NPCs
 			button = Language.GetTextValue("LegacyInterface.28");
 		}
 
-		public override void OnChatButtonClicked(bool firstButton, ref bool shop) {
-			if (firstButton) {
-				shop = true;
+        public override void OnChatButtonClicked(bool firstButton, ref string shop)
+        {
+            if (firstButton) {
+				shop = ShopName;
 			}
 		}
-        public override void SetupShop(Chest shop, ref int nextSlot)
+        public override void AddShops()
         {
-            shop.item[nextSlot].SetDefaults(ItemID.Tombstone);
-            nextSlot++;
-            shop.item[nextSlot].SetDefaults(ItemID.AngelStatue);
-            nextSlot++;
-            shop.item[nextSlot].SetDefaults(ItemID.LesserHealingPotion);
-            nextSlot++;
+			var npcShop = new NPCShop(Type, ShopName)
+				.Add(ItemID.AngelStatue)
+				.Add(ItemID.LesserHealingPotion)
+				.Add<JumpVelPotion>();
+			
             if (!Main.dayTime)
             {
-                shop.item[nextSlot++].SetDefaults(ModContent.ItemType<vhcmknife>());
+				npcShop.Add<vhcmknife>();
             }
-            shop.item[nextSlot++].SetDefaults(ModContent.ItemType<JumpVelPotion>());
         }
-        // Not completely finished, but below is what the NPC will sell
-
-        // public override void SetupShop(Chest shop, ref int nextSlot) {
-        // 	shop.item[nextSlot++].SetDefaults(ItemType<ExampleItem>());
-        // 	// shop.item[nextSlot].SetDefaults(ItemType<EquipMaterial>());
-        // 	// nextSlot++;
-        // 	// shop.item[nextSlot].SetDefaults(ItemType<BossItem>());
-        // 	// nextSlot++;
-        // 	shop.item[nextSlot++].SetDefaults(ItemType<Items.Placeable.Furniture.ExampleWorkbench>());
-        // 	shop.item[nextSlot++].SetDefaults(ItemType<Items.Placeable.Furniture.ExampleChair>());
-        // 	shop.item[nextSlot++].SetDefaults(ItemType<Items.Placeable.Furniture.ExampleDoor>());
-        // 	shop.item[nextSlot++].SetDefaults(ItemType<Items.Placeable.Furniture.ExampleBed>());
-        // 	shop.item[nextSlot++].SetDefaults(ItemType<Items.Placeable.Furniture.ExampleChest>());
-        // 	shop.item[nextSlot++].SetDefaults(ItemType<ExamplePickaxe>());
-        // 	shop.item[nextSlot++].SetDefaults(ItemType<ExampleHamaxe>());
-        //
-        // 	if (Main.LocalPlayer.HasBuff(BuffID.Lifeforce)) {
-        // 		shop.item[nextSlot++].SetDefaults(ItemType<ExampleHealingPotion>());
-        // 	}
-        //
-        // 	// if (Main.LocalPlayer.GetModPlayer<ExamplePlayer>().ZoneExample && !GetInstance<ExampleConfigServer>().DisableExampleWings) {
-        // 	// 	shop.item[nextSlot].SetDefaults(ItemType<ExampleWings>());
-        // 	// 	nextSlot++;
-        // 	// }
-        //
-        // 	if (Main.moonPhase < 2) {
-        // 		shop.item[nextSlot++].SetDefaults(ItemType<ExampleSword>());
-        // 	}
-        // 	else if (Main.moonPhase < 4) {
-        // 		// shop.item[nextSlot++].SetDefaults(ItemType<ExampleGun>());
-        // 		shop.item[nextSlot].SetDefaults(ItemType<ExampleBullet>());
-        // 	}
-        // 	else if (Main.moonPhase < 6) {
-        // 		// shop.item[nextSlot++].SetDefaults(ItemType<ExampleStaff>());
-        // 	}
-        //
-        // 	// todo: Here is an example of how your npc can sell items from other mods.
-        // 	// var modSummonersAssociation = ModLoader.TryGetMod("SummonersAssociation");
-        // 	// if (ModLoader.TryGetMod("SummonersAssociation", out Mod modSummonersAssociation)) {
-        // 	// 	shop.item[nextSlot].SetDefaults(modSummonersAssociation.ItemType("BloodTalisman"));
-        // 	// 	nextSlot++;
-        // 	// }
-        //
-        // 	// if (!Main.LocalPlayer.GetModPlayer<ExamplePlayer>().examplePersonGiftReceived && GetInstance<ExampleConfigServer>().ExamplePersonFreeGiftList != null) {
-        // 	// 	foreach (var item in GetInstance<ExampleConfigServer>().ExamplePersonFreeGiftList) {
-        // 	// 		if (Item.IsUnloaded) continue;
-        // 	// 		shop.item[nextSlot].SetDefaults(Item.Type);
-        // 	// 		shop.item[nextSlot].shopCustomPrice = 0;
-        // 	// 		shop.item[nextSlot].GetGlobalItem<ExampleInstancedGlobalItem>().examplePersonFreeGift = true;
-        // 	// 		nextSlot++;
-        // 	// 		//TODO: Have tModLoader handle index issues.
-        // 	// 	}
-        // 	// }
-        // }
-
+        public override void ModifyActiveShop(string shopName, Item[] items)
+        {
+            foreach (Item item in items)
+            {
+                // Skip 'air' items and null items.
+                if (item == null || item.type == ItemID.None)
+                {
+                    continue;
+                }
+            }
+        }
+       
         public override void ModifyNPCLoot(NPCLoot npcLoot) {
 			npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<vhcmknife>()));
 		}

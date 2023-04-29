@@ -11,9 +11,9 @@ namespace PenumbraMod.Content.NPCs
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Strange knife"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
-			Tooltip.SetDefault("This knife has a strange green toxic liquid on inside..." +
-				"\n''Why'd you got this?''");
+			// DisplayName.SetDefault("Strange knife"); // By default, capitalization in classnames will add spaces to the display name. You can customize the display name here by uncommenting this line.
+			/* Tooltip.SetDefault("This knife has a strange green toxic liquid on inside..." +
+				"\n''Why'd you got this?''"); */
 			
 		}
 
